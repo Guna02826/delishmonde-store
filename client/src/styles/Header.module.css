@@ -1,0 +1,112 @@
+/* Base styles */
+.header {
+  position: relative; /* Establishes a positioning context for .loginSignup */
+  text-align: center;
+  background-color: #d7c1a3;
+  padding: 16px; /* Slightly increased padding for more breathing room */
+  border-radius: 5px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 🔹 Fix Login/Register Layout */
+.loginSignup {
+  display: flex;
+  gap: 12px; /* Adds space between Login and Register */
+  align-items: center;
+  position: absolute;
+  top: 8px;
+  right: 16px;
+}
+
+.loginSignup a {
+  font-size: 14px;
+  color: #6f4f37;
+  text-decoration: none;
+}
+
+.loginSignup a:hover {
+  text-decoration: underline;
+}
+
+/* 🔹 Navigation Styling */
+.navbar {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;
+  gap: 16px; /* Ensures consistent spacing */
+}
+
+.navbar li {
+  margin: 0 8px;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: #6f4f37;
+  font-size: 16px;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar a:hover {
+  color: hsla(26, 34%, 43%, 0.8);
+  transform: scale(1.05);
+}
+
+/* 🔹 Icon Spacing */
+.iconSpacing {
+  margin-right: 8px;
+}
+
+/* 📱 Responsive adjustments for devices up to 768px wide */
+@media screen and (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .loginSignup {
+    position: static; /* Prevents overlapping */
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .loginSignup a {
+    font-size: 12px;
+  }
+
+  .navbar {
+    flex-direction: column;
+    gap: 8px; /* Space between nav items when stacked vertically */
+    margin-top: 12px;
+  }
+
+  .navbar a {
+    font-size: 14px;
+  }
+}
+
+/* 📱 Further adjustments for devices up to 480px wide */
+@media screen and (max-width: 480px) {
+  .header {
+    padding: 8px;
+  }
+
+  .loginSignup {
+    flex-direction: column; /* Stacks Login & Register links */
+    gap: 6px;
+  }
+
+  .loginSignup a {
+    font-size: 10px;
+  }
+
+  .navbar a {
+    font-size: 12px;
+  }
+}

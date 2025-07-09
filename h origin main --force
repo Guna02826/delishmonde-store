@@ -1,0 +1,29 @@
+[33mcommit d21aa9fc00bee96d4726863cd824a7c48b80fef5[m
+Author: Gunasekaraselvapandian <gssp02826@gmail.com>
+Date:   Wed Jul 9 17:06:00 2025 +0530
+
+    Initial commit
+
+[33mcommit 2ae710ef8a540d375a69a89f60a73cb69b7a13cd[m
+Author: Gunasekaraselvapandian <gssp02826@gmail.com>
+Date:   Wed Jul 9 17:31:04 2025 +0530
+
+    Add _redirects for Netlify SPA routing
+
+[33mcommit 1faabbcd3b86f7011b7d3c4ccd96758a2f9c33c4[m
+Author: Gunasekaraselvapandian <gssp02826@gmail.com>
+Date:   Wed Jul 9 17:31:12 2025 +0530
+
+    Remove _redirects from repo
+
+[33mcommit 93c99e2cc0f534863c09290031d70b148169664e[m
+Author: Gunasekaraselvapandian <gssp02826@gmail.com>
+Date:   Wed Jul 9 17:32:23 2025 +0530
+
+    Add _redirects for Netlify SPA routing
+
+[33mcommit 2c590b559444b2d18c743b7e33a819b84bf60872[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Gunasekaraselvapandian <gssp02826@gmail.com>
+Date:   Wed Jul 9 17:33:32 2025 +0530
+
+    Add _redirects for Netlify SPA routing and update .gitignore

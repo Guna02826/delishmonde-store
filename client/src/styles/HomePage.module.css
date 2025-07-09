@@ -1,0 +1,133 @@
+/* General Hero Section */
+.hero {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.heroImg {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.heroTitle {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #d35400;
+    margin-top: 20px;
+}
+
+.heroDescription {
+    font-size: 1rem;
+    color: #555;
+    max-width: 600px;
+    margin: 15px auto;
+    line-height: 1.6;
+}
+
+/* Buttons (General) */
+.heroButton,
+.addToCart {
+    margin-top: 20px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    background: #ff5722;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.heroButton:hover,
+.addToCart:hover {
+    background: #e64a19;
+    transform: scale(1.05);
+}
+
+/* Best Sellers Section */
+.bestSellerTitle {
+    font-size: 2rem;
+    color: #ff5722;
+    margin-top: 40px;
+}
+
+.bestSellerGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+    padding: 20px;
+}
+
+/* Food Item Card */
+.food {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+.food:hover {
+    transform: scale(1.05);
+}
+
+.food img {
+    width: 100%;
+    max-width: 180px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.food:hover img {
+    transform: scale(1.1);
+}
+
+.food h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.food p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* Quantity Selector */
+.quantityContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.quantityButton {
+    background: #ff5722;
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.quantityButton:hover {
+    background: #e64a19;
+}
+
+.quantity {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}

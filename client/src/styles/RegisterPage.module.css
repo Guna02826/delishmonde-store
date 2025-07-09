@@ -1,0 +1,91 @@
+/* RegisterPage.module.css */
+
+/* 🌟 Container */
+.registerContainer {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px 25px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* 📝 Form Fields */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+label {
+  font-weight: bold;
+  color: #555;
+  text-align: left;
+  font-size: 14px;
+}
+
+input {
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+/* 🚀 Button */
+button {
+  background-color: green;
+  color: white;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #007f00;
+}
+
+/* ❗ Error Text */
+.error {
+  color: #ff4d4d;
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* 📌 Login Link */
+p {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+a {
+  color: green;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 📱 Responsive */
+@media (max-width: 480px) {
+  .registerContainer {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  input,
+  button {
+    font-size: 14px;
+  }
+}

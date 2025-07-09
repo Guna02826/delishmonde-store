@@ -1,0 +1,129 @@
+/* Main Container */
+.menuContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Category Section */
+.categorySection:not(:last-child) {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 40px;
+}
+
+/* Category Title */
+.categoryTitle {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #ff5722;
+  text-transform: uppercase;
+  border-bottom: 3px solid #ff5722;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+/* Menu Grid Layout */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  justify-content: center;
+}
+
+/* Individual Food Item */
+.food {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.food:hover {
+  transform: scale(1.05);
+}
+
+/* Food Image */
+.food img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.food:hover img {
+  transform: scale(1.1);
+}
+
+/* Food Name */
+.food h3 {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+/* Food Description */
+.desc {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* Stock/Availability Info */
+.quantityContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.quantityButton {
+  background: #ff5722;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.quantityButton:hover {
+  background: #e64a19;
+}
+
+.quantity {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Price */
+.food b {
+  font-size: 1.3rem;
+  color: #222;
+}
+
+/* Add to Cart Button */
+.addToCart {
+  background: #ff5722;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-weight: bold;
+  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.addToCart:hover {
+  background: #e64a19;
+  transform: scale(1.05);
+}

@@ -1,0 +1,18 @@
+.successContainer {
+  text-align: center;
+  padding: 50px;
+}
+
+.successContainer h2 {
+  color: green;
+}
+
+.backToHome {
+  padding: 10px 15px;
+  background: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
