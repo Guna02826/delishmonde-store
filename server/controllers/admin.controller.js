@@ -16,10 +16,12 @@ export const getAllUsers = async (req, res) => {
 // Get orders of a specific user
 export const getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.params.id }).populate(
-      "products.productId",
-      "name price"
-    );
+    const orders = await Order.find({
+      userId: req.params.id,
+      status: { $ne: "pending" },
+    })
+      .populate("products.productId", "name price")
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
     res

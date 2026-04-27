@@ -203,14 +203,32 @@ function CartPage() {
     }
   };
 
-  if (loading) return <p className={styles.cartContainer}>Loading cart...</p>;
+  if (loading) {
+    return (
+      <div className={styles.cartContainer}>
+        <div className={styles.emptyState}>Loading cart...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.cartContainer}>
-      <h2>Shopping Cart</h2>
-      {cartItems.length === 0 ? (
+      <div className={styles.pageHeader}>
         <div>
-          <p>Your cart is empty.</p>
+          <p className={styles.eyebrow}>Your order</p>
+          <h2>Shopping Cart</h2>
+        </div>
+        {cartItems.length > 0 && (
+          <button className={styles.menuButton} onClick={() => navigate("/menu")}>
+            Add More Items
+          </button>
+        )}
+      </div>
+
+      {cartItems.length === 0 ? (
+        <div className={styles.emptyState}>
+          <h3>Your cart is empty</h3>
+          <p>Explore the menu and add your favorite bakes to get started.</p>
           <button
             className={styles.menuButton}
             onClick={() => navigate("/menu")}
@@ -219,50 +237,59 @@ function CartPage() {
           </button>
         </div>
       ) : (
-        <>
-          {cartItems.map((item) => (
-            <div key={item._id} className={styles.cartItem}>
-              <img
-                src={item.images?.[0] || item.image || "https://placehold.co/100"}
-                alt={item.name}
-              />
-              <div className={styles.itemDetails}>
-                <h3>{item.name}</h3>
-                <p>
-                  Rs. {item.price} x {item.quantity}
-                </p>
-                <div className={styles.quantityControls}>
-                  <button
-                    type="button"
-                    onClick={() => updateQuantity(item, item.quantity - 1)}
-                    disabled={item.quantity <= 1}
-                    aria-label={`Decrease ${item.name} quantity`}
-                  >
-                    -
-                  </button>
-                  <span>{item.quantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => updateQuantity(item, item.quantity + 1)}
-                    disabled={item.quantity >= item.stock}
-                    aria-label={`Increase ${item.name} quantity`}
-                  >
-                    +
-                  </button>
+        <div className={styles.cartLayout}>
+          <div className={styles.cartList}>
+            {cartItems.map((item) => (
+              <div key={item._id} className={styles.cartItem}>
+                <img
+                  src={item.images?.[0] || item.image || "https://placehold.co/100"}
+                  alt={item.name}
+                />
+                <div className={styles.itemDetails}>
+                  <div className={styles.itemTopRow}>
+                    <div>
+                      <h3>{item.name}</h3>
+                      <p>Rs. {item.price} each</p>
+                    </div>
+                    <strong>Rs. {item.price * item.quantity}</strong>
+                  </div>
+                  <div className={styles.itemControls}>
+                    <div className={styles.quantityControls}>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                        aria-label={`Decrease ${item.name} quantity`}
+                      >
+                        -
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item, item.quantity + 1)}
+                        disabled={item.quantity >= item.stock}
+                        aria-label={`Increase ${item.name} quantity`}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => removeFromCart(item._id)}
+                      className={styles.removeButton}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  {item.quantity >= item.stock && (
+                    <p className={styles.stockLimit}>Stock limit reached</p>
+                  )}
                 </div>
-                {item.quantity >= item.stock && (
-                  <p className={styles.stockLimit}>Stock limit reached</p>
-                )}
               </div>
-              <button
-                onClick={() => removeFromCart(item._id)}
-                className={styles.removeButton}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <div className={styles.cartSummary}>
+            ))}
+          </div>
+
+          <aside className={styles.cartSummary}>
+            <h3>Order Summary</h3>
             <div className={styles.couponRow}>
               <input
                 type="text"
@@ -270,7 +297,7 @@ function CartPage() {
                 onChange={(event) => setCouponCode(event.target.value)}
                 placeholder="Coupon code"
               />
-              <button onClick={handleApplyCoupon}>Apply Coupon</button>
+              <button onClick={handleApplyCoupon}>Apply</button>
             </div>
             {appliedCoupon && (
               <p className={styles.couponSuccess}>
@@ -278,23 +305,41 @@ function CartPage() {
                 {discountAmount}
               </p>
             )}
-            <button className={styles.clearCart} onClick={clearCart}>
-              Clear Cart
-            </button>
             <div className={styles.totalAmount}>
-              <p>Subtotal: Rs. {subtotal}</p>
-              {discountAmount > 0 && <p>Discount: - Rs. {discountAmount}</p>}
-              <strong>Total: Rs. {totalAmount}</strong>
+              <div>
+                <span>Subtotal</span>
+                <strong>Rs. {subtotal}</strong>
+              </div>
+              {discountAmount > 0 && (
+                <div>
+                  <span>Discount</span>
+                  <strong>- Rs. {discountAmount}</strong>
+                </div>
+              )}
+              <div className={styles.grandTotal}>
+                <span>Total</span>
+                <strong>Rs. {totalAmount}</strong>
+              </div>
             </div>
             <button
               className={styles.checkoutButton}
               onClick={handleCheckout}
               disabled={cartItems.length === 0}
             >
-              Proceed to Checkout
+              {user?.email === "demo@delishmonde.test"
+                ? "Proceed to Demo Checkout"
+                : "Proceed to Checkout"}
             </button>
-          </div>
-        </>
+            {user?.email === "demo@delishmonde.test" && (
+              <p className={styles.demoDisclaimer}>
+                Simulation: No real payment will be processed.
+              </p>
+            )}
+            <button className={styles.clearCart} onClick={clearCart}>
+              Clear Cart
+            </button>
+          </aside>
+        </div>
       )}
     </div>
   );

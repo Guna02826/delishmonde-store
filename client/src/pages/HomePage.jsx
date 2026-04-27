@@ -9,6 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 function Homepage() {
   const [bestSellers, setBestSellers] = useState([]);
+  const [startingDemo, setStartingDemo] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +26,25 @@ function Homepage() {
       });
   }, []);
 
+  const startDemo = async () => {
+    setStartingDemo(true);
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/users/demo-session`,
+        {},
+        { withCredentials: true }
+      );
+
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate("/menu");
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to start demo session.");
+    } finally {
+      setStartingDemo(false);
+    }
+  };
+
   return (
     <div className={styles.hero}>
       <img className={styles.heroImg} src={image} alt="Bakery" loading="lazy" />
@@ -40,9 +60,19 @@ function Homepage() {
         changes seasonally, so check back often for new items!
       </p>
 
-      <button className={styles.heroButton} onClick={() => navigate("/menu")}>
-        Order Now
-      </button>
+      <div className={styles.heroActions}>
+        <button className={styles.heroButton} onClick={() => navigate("/menu")}>
+          Order Now
+        </button>
+        <button
+          className={`${styles.demoButton} ${styles.pulse}`}
+          onClick={startDemo}
+          disabled={startingDemo}
+          title="Instant access as a guest - No login required"
+        >
+          {startingDemo ? "Starting Demo..." : "Interactive Demo"}
+        </button>
+      </div>
 
       <h2 className={styles.bestSellerTitle}>Best Sellers</h2>
       <div className={styles.bestSellerGrid}>

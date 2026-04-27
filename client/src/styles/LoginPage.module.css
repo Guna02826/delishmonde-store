@@ -8,13 +8,13 @@
   padding: var(--space-lg) var(--space-md);
 }
 
-h2 {
+.loginContainer h2 {
   color: var(--color-text-primary);
   font-size: var(--fs-h2);
   margin-bottom: var(--space-lg);
 }
 
-form {
+.loginContainer form {
   background-color: var(--color-surface);
   padding: var(--space-xl);
   border-radius: var(--radius-lg);
@@ -23,7 +23,7 @@ form {
   max-width: var(--max-width-form);
 }
 
-label {
+.loginContainer label {
   display: block;
   margin-bottom: var(--space-md);
   font-size: var(--fs-small);
@@ -32,7 +32,7 @@ label {
   text-align: left;
 }
 
-input {
+.loginContainer input {
   width: 100%;
   padding: var(--space-sm) var(--space-md);
   min-height: var(--touch-min);
@@ -44,13 +44,13 @@ input {
   transition: border-color var(--transition-fast);
 }
 
-input:focus {
+.loginContainer input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
-button {
+.loginContainer button {
   width: 100%;
   padding: var(--space-sm) var(--space-md);
   min-height: var(--touch-min);
@@ -69,6 +69,14 @@ button {
   background-color: var(--color-primary-hover);
 }
 
+.demoLoginButton {
+  background-color: var(--color-cta);
+}
+
+.demoLoginButton:hover {
+  background-color: var(--color-cta-hover);
+}
+
 .error {
   color: var(--color-error);
   font-size: var(--fs-small);
@@ -77,19 +85,19 @@ button {
   text-align: center;
 }
 
-p {
+.loginContainer p {
   margin-top: var(--space-lg);
   font-size: var(--fs-small);
   color: var(--color-text-secondary);
 }
 
-a {
+.loginContainer a {
   color: var(--color-primary);
   font-weight: 700;
   text-decoration: none;
 }
 
-a:hover {
+.loginContainer a:hover {
   text-decoration: underline;
 }
 
@@ -99,7 +107,7 @@ a:hover {
     padding: var(--space-md) var(--space-sm);
   }
 
-  form {
+  .loginContainer form {
     padding: var(--space-lg);
   }
 }

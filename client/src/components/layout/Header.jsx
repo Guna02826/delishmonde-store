@@ -54,74 +54,78 @@ function Header() {
           <img src={delishMondeLogo} alt="Delish Monde Logo" />
         </div>
 
-        <div className={styles.navContainer}>
-          <h1>Delish Monde</h1>
-          <nav>
-            <ul className={styles.navbar}>
+        <h1 className={styles.brandTitle}>Delish Monde</h1>
+
+        <nav className={styles.navContainer}>
+          <ul className={styles.navbar}>
+            <li>
+              <NavLink to="/">
+                <FontAwesomeIcon icon={faHouse} className={styles.iconSpacing} />
+                Home
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/menu">
+                <FontAwesomeIcon icon={faList} className={styles.iconSpacing} />
+                Menu
+              </NavLink>
+            </li>
+            {user?.isAdmin && (
               <li>
-                <NavLink to="/">
-                  <FontAwesomeIcon icon={faHouse} className={styles.iconSpacing} />
-                  Home
+                <NavLink to="/admin">
+                  <FontAwesomeIcon icon={faGauge} className={styles.iconSpacing} />
+                  Admin
                 </NavLink>
               </li>
-              <li>
-                <NavLink to="/menu">
-                  <FontAwesomeIcon icon={faList} className={styles.iconSpacing} />
-                  Menu
-                </NavLink>
-              </li>
-              {user?.isAdmin && (
+            )}
+            {user && !user.isAdmin && (
+              <>
                 <li>
-                  <NavLink to="/admin">
-                    <FontAwesomeIcon icon={faGauge} className={styles.iconSpacing} />
-                    Admin
+                  <NavLink to="/cart">
+                    <FontAwesomeIcon
+                      icon={faCartShopping}
+                      className={styles.iconSpacing}
+                    />
+                    Cart
                   </NavLink>
                 </li>
-              )}
-              {user && !user.isAdmin && (
-                <>
-                  <li>
-                    <NavLink to="/cart">
-                      <FontAwesomeIcon
-                        icon={faCartShopping}
-                        className={styles.iconSpacing}
-                      />
-                      Cart
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/order-history">
-                      <FontAwesomeIcon
-                        icon={faHistory}
-                        className={styles.iconSpacing}
-                      />
-                      Order History
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/profile">
-                      <FontAwesomeIcon icon={faUser} className={styles.iconSpacing} />
-                      Profile
-                    </NavLink>
-                  </li>
-                </>
-              )}
-            </ul>
-          </nav>
-        </div>
+                <li>
+                  <NavLink to="/order-history">
+                    <FontAwesomeIcon
+                      icon={faHistory}
+                      className={styles.iconSpacing}
+                    />
+                    Order History
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/profile">
+                    <FontAwesomeIcon icon={faUser} className={styles.iconSpacing} />
+                    Profile
+                  </NavLink>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
 
         <div className={styles.loginSignup}>
           {user ? (
-            <>
-              <span className={styles.userName}>{user.username}</span>
+            <div className={styles.accountActions}>
+              <span className={styles.accountName} title={user.username}>
+                {user.username}
+                {user.email === "demo@delishmonde.test" && (
+                  <span className={styles.demoBadge}>DEMO</span>
+                )}
+              </span>
               <button type="button" onClick={handleLogout}>
                 <FontAwesomeIcon
                   icon={faRightFromBracket}
                   className={styles.iconSpacing}
                 />
-                Logout
+                <span className={styles.logoutText}>Logout</span>
               </button>
-            </>
+            </div>
           ) : (
             <>
               <NavLink to="/login" state={{ from: location.pathname }}>

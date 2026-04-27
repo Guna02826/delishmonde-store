@@ -2,6 +2,32 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+const DEMO_USER = {
+  username: "Demo Guest",
+  email: "demo@delishmonde.test",
+  password: "Demo@12345",
+};
+
+const setAuthCookie = (res, user) => {
+  const token = jwt.sign(
+    { id: user._id, isAdmin: user.isAdmin },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+
+  return res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 60 * 60 * 1000,
+  });
+};
+
+const toSafeUser = (user) => {
+  const { password: _, ...userInfo } = user._doc;
+  return userInfo;
+};
+
 //1.Auth
 // Register a new user
 export const registerUser = async (req, res) => {
@@ -32,24 +58,35 @@ export const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid Password" });
 
-    const token = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    const { password: _, ...userInfo } = user._doc;
-
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 60 * 60 * 1000,
-      })
-      .json({ message: "Login successful", user: userInfo });
+    setAuthCookie(res, user).json({
+      message: "Login successful",
+      user: toSafeUser(user),
+    });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const loginDemoUser = async (req, res) => {
+  try {
+    let user = await User.findOne({ email: DEMO_USER.email });
+
+    if (!user) {
+      const hashedPassword = await bcrypt.hash(DEMO_USER.password, 10);
+      user = await User.create({
+        username: DEMO_USER.username,
+        email: DEMO_USER.email,
+        password: hashedPassword,
+        isAdmin: false,
+      });
+    }
+
+    setAuthCookie(res, user).json({
+      message: "Demo login successful",
+      user: toSafeUser(user),
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to start demo session" });
   }
 };
 

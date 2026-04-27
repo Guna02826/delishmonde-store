@@ -1,95 +1,59 @@
-/* ── Header ── */
 .header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: var(--color-primary);
-  padding: var(--space-md) var(--space-lg);
-  min-height: 64px;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 150px minmax(0, 1fr) max-content;
+  grid-template-areas:
+    "logo title account"
+    "logo nav account";
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-xs) var(--space-lg);
+  min-height: 74px;
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--color-primary);
   box-shadow: var(--shadow-card);
 }
 
-/* ── Logo ── */
 .logoContainer {
+  grid-area: logo;
   justify-self: start;
+  display: flex;
+  align-items: center;
 }
 
 .header img {
-  width: 140px;
+  width: 118px;
   height: auto;
   border-radius: var(--radius-md);
   flex-shrink: 0;
 }
 
-/* ── Nav Container ── */
-.navContainer {
+.brandTitle {
+  grid-area: title;
   justify-self: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.navContainer h1 {
+  margin: 0;
   color: var(--color-text-on-dark);
   font-size: var(--fs-h2);
-  margin: 0;
+  line-height: 1.1;
   white-space: nowrap;
 }
 
-/* ── Login/Register ── */
-.loginSignup {
-  justify-self: end;
-  display: flex;
-  gap: var(--space-sm);
-  align-items: center;
-  color: var(--color-text-on-dark);
+.navContainer {
+  grid-area: nav;
+  justify-self: center;
+  min-width: 0;
+  max-width: 100%;
 }
 
-.loginSignup a,
-.loginSignup button {
-  font-size: var(--fs-small);
-  color: var(--color-text-on-dark);
-  text-decoration: none;
-  opacity: 0.85;
-  padding: var(--space-xs) var(--space-sm);
-  min-height: var(--touch-min);
-  display: inline-flex;
-  align-items: center;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity var(--transition-fast);
-}
-
-.loginSignup a:hover,
-.loginSignup button:hover {
-  opacity: 1;
-  text-decoration: underline;
-}
-
-.userName {
-  font-size: var(--fs-small);
-  font-weight: 700;
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ── Navigation ── */
 .navbar {
   display: flex;
   justify-content: center;
   align-items: center;
   list-style: none;
   padding: 0;
-  margin: var(--space-sm) 0 0 0;
-  gap: var(--space-lg);
+  margin: 0;
+  gap: var(--space-md);
   flex-wrap: wrap;
 }
 
@@ -98,15 +62,16 @@
 }
 
 .navbar a {
-  text-decoration: none;
-  color: var(--color-text-on-dark);
-  font-size: var(--fs-body);
-  font-weight: 700;
-  padding: var(--space-sm) var(--space-md);
-  min-height: var(--touch-min);
   display: inline-flex;
   align-items: center;
+  min-height: 32px;
+  padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-sm);
+  color: var(--color-text-on-dark);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
   transition: background var(--transition-normal), opacity var(--transition-normal);
 }
 
@@ -115,86 +80,214 @@
   opacity: 0.95;
 }
 
-/* ── Icon Spacing ── */
-.iconSpacing {
-  margin-right: var(--space-sm);
+.loginSignup {
+  grid-area: account;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+  min-width: 0;
+  width: auto;
+  max-width: 100%;
+  color: var(--color-text-on-dark);
+  flex-wrap: nowrap;
 }
 
-/* ── Tablet (< 768px) ── */
+.loginSignup a,
+.loginSignup button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: var(--space-xs) var(--space-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-on-dark);
+  font-family: inherit;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.loginSignup a:hover,
+.loginSignup button:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.accountActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+  min-width: 0;
+  width: auto;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  flex: 0 1 auto;
+  flex-wrap: nowrap;
+}
+
+.accountName {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: clamp(120px, 18vw, 240px);
+  padding: 0 var(--space-xs);
+  color: var(--color-text-on-dark);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demoBadge {
+  display: inline-block;
+  background: var(--color-cta);
+  color: white;
+  font-size: 9px;
+  padding: 2px 5px;
+  border-radius: 12px;
+  margin-left: var(--space-xs);
+  vertical-align: middle;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.iconSpacing {
+  margin-right: var(--space-xs);
+  flex-shrink: 0;
+}
+
 @media screen and (max-width: 768px) {
   .header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr) max-content;
+    grid-template-areas:
+      "logo title account"
+      "nav nav nav";
+    gap: var(--space-xs) var(--space-sm);
     padding: var(--space-sm) var(--space-md);
-    /* Removing position: relative so it inherits position: sticky from base! */
   }
 
   .header img {
-    width: 100px;
+    width: 88px;
   }
 
-  .navContainer {
-    order: 3;
-    width: 100%;
-    margin-top: var(--space-sm);
+  .brandTitle {
+    font-size: var(--fs-body);
   }
 
-  /* Hide the text title on mobile to save vertical space; logo is sufficient */
-  .navContainer h1 {
+  .navbar {
+    gap: var(--space-xs);
+  }
+
+  .navbar a {
+    min-height: 28px;
+    font-size: var(--fs-xs);
+    padding: var(--space-xs);
+  }
+
+  .accountName {
+    max-width: 140px;
+    font-size: var(--fs-xs);
+  }
+
+  .loginSignup button,
+  .loginSignup a {
+    min-height: 32px;
+    font-size: var(--fs-xs);
+    padding: var(--space-xs);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "logo account"
+      "nav nav";
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .header img {
+    width: 62px;
+  }
+
+  .brandTitle {
     display: none;
   }
 
   .loginSignup {
-    order: 2;
-    position: static;
+    justify-self: end;
+    max-width: 100%;
+  }
+
+  .accountActions {
+    gap: 2px;
+    padding: 2px;
+    max-width: 100%;
+  }
+
+  .accountName {
+    max-width: 96px;
+    padding: 0 2px;
+  }
+
+  .logoutText {
+    display: none;
+  }
+
+  .accountActions button .iconSpacing {
+    margin-right: 0;
+  }
+
+  .loginSignup button,
+  .loginSignup a {
+    min-height: 28px;
+    padding: 2px 4px;
   }
 
   .navbar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
-    margin-top: 0;
+    justify-content: center;
+    gap: 2px;
   }
 
   .navbar a {
-    font-size: var(--fs-xs);
-    padding: var(--space-xs) var(--space-sm);
+    font-size: 10px;
+    padding: 3px 5px;
+  }
+
+  .navbar .iconSpacing {
+    margin-right: 3px;
   }
 }
 
-/* ── Mobile (< 480px) ── */
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 360px) {
   .header {
-    padding: var(--space-xs) var(--space-sm);
+    gap: 2px;
   }
 
   .header img {
-    width: 80px;
+    width: 54px;
   }
 
-  .loginSignup {
-    flex-direction: row;
-    gap: var(--space-xs);
-  }
-
-  .loginSignup a,
-  .loginSignup button,
-  .userName {
-    font-size: var(--fs-xs);
-    padding: var(--space-xs);
-  }
-
-  .navbar {
-    flex-direction: row;
-    gap: var(--space-xs);
-    justify-content: center;
+  .accountName {
+    max-width: 74px;
   }
 
   .navbar a {
-    font-size: var(--fs-xs);
-    width: auto;
-    padding: var(--space-xs);
+    font-size: 9px;
+    padding: 2px 4px;
   }
 }

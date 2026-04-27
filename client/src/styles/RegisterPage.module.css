@@ -10,21 +10,21 @@
 }
 
 /* ── Form ── */
-form {
+.registerContainer form {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
   margin-top: var(--space-lg);
 }
 
-label {
+.registerContainer label {
   font-weight: 700;
   color: var(--color-text-secondary);
   text-align: left;
   font-size: var(--fs-small);
 }
 
-input {
+.registerContainer input {
   padding: var(--space-sm) var(--space-md);
   min-height: var(--touch-min);
   font-size: var(--fs-body);
@@ -35,14 +35,14 @@ input {
   transition: border-color var(--transition-fast);
 }
 
-input:focus {
+.registerContainer input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 /* ── Button ── */
-button {
+.registerContainer button {
   background-color: var(--color-primary);
   color: var(--color-text-on-dark);
   padding: var(--space-sm) var(--space-md);
@@ -55,7 +55,7 @@ button {
   transition: background var(--transition-normal);
 }
 
-button:hover {
+.registerContainer button:hover {
   background-color: var(--color-primary-hover);
 }
 
@@ -68,19 +68,19 @@ button:hover {
 }
 
 /* ── Login Link ── */
-p {
+.registerContainer p {
   margin-top: var(--space-lg);
   font-size: var(--fs-small);
   color: var(--color-text-secondary);
 }
 
-a {
+.registerContainer a {
   color: var(--color-primary);
   font-weight: 700;
   text-decoration: none;
 }
 
-a:hover {
+.registerContainer a:hover {
   text-decoration: underline;
 }
 

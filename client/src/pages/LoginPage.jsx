@@ -46,6 +46,26 @@ const Login = () => {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/users/demo-session`,
+        {},
+        { withCredentials: true }
+      );
+
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate("/menu");
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to start demo session.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.loginContainer}>
       <h2>Login</h2>
@@ -73,6 +93,15 @@ const Login = () => {
         </label>
         <button className={styles.loginButton} type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
+        </button>
+        <button
+          className={styles.demoLoginButton}
+          type="button"
+          onClick={handleDemoLogin}
+          disabled={loading}
+          title="Try the full app experience instantly"
+        >
+          Sign in as Demo User (No login)
         </button>
       </form>
       <p>

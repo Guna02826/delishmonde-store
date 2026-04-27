@@ -66,16 +66,12 @@ export const newOrder = async (req, res) => {
 // Get Orders for Logged-in User
 export const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user.id }).populate(
-      "products.productId",
-      "name price"
-    );
-
-    if (!orders.length) {
-      return res
-        .status(404)
-        .json({ message: "No orders have been placed yet" });
-    }
+    const orders = await Order.find({
+      userId: req.user.id,
+      status: { $ne: "pending" },
+    })
+      .populate("products.productId", "name price")
+      .sort({ createdAt: -1 });
 
     res.status(200).json(orders);
   } catch (error) {
