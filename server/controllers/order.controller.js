@@ -1,5 +1,6 @@
 import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
+import { sendInvoiceEmail } from "../utils/invoice.js";
 
 //1.User Operations
 // Place New Order
@@ -42,6 +43,13 @@ export const newOrder = async (req, res) => {
     });
 
     await order.save();
+    await order.populate("products.productId", "name price");
+
+    try {
+      await sendInvoiceEmail({ to: req.user.email, order });
+    } catch (emailError) {
+      console.error("Invoice email failed:", emailError.message);
+    }
 
     res.status(201).json({
       message: "Order placed successfully!",

@@ -7,6 +7,7 @@ import Payment from "../models/payment.model.js";
 import Product from "../models/product.model.js";
 import { verifyUser } from "../middleware/auth.middleware.js";
 import { calculateCouponDiscount } from "../utils/coupon.js";
+import { sendInvoiceEmail } from "../utils/invoice.js";
 
 const router = Router();
 
@@ -165,10 +166,17 @@ router.post("/verify", async (req, res) => {
       return res.status(404).json({ message: "Payment record not found" });
     }
 
-    await Order.findOneAndUpdate(
+    const order = await Order.findOneAndUpdate(
       { _id: orderId, userId: req.user.id },
-      { status: "processing" }
-    );
+      { status: "processing" },
+      { new: true }
+    ).populate("products.productId", "name price");
+
+    try {
+      await sendInvoiceEmail({ to: req.user.email, order });
+    } catch (emailError) {
+      console.error("Invoice email failed:", emailError.message);
+    }
 
     res.json({
       message: "Payment verified successfully",
