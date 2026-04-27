@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "../styles/CartPage.module.css";
 import axios from "axios";
 import {
+  applyCoupon,
   clearCart as clearCartApi,
   getCart,
   removeCartItem,
@@ -37,6 +38,19 @@ function CartPage() {
   const [cartItems, setCartItems] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+
+  const checkoutItems = cartItems.map((item) => ({
+    productId: item._id,
+    quantity: item.quantity,
+  }));
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const discountAmount = appliedCoupon?.discountAmount || 0;
+  const totalAmount = subtotal - discountAmount;
 
   useEffect(() => {
     const loadCart = async () => {
@@ -65,6 +79,7 @@ function CartPage() {
     try {
       const cart = await removeCartItem(productId);
       setCartItems(formatCartItems(cart));
+      setAppliedCoupon(null);
     } catch (error) {
       alert(error.response?.data?.message || "Failed to remove item.");
     }
@@ -74,8 +89,25 @@ function CartPage() {
     try {
       await clearCartApi();
       setCartItems([]);
+      setAppliedCoupon(null);
+      setCouponCode("");
     } catch (error) {
       alert(error.response?.data?.message || "Failed to clear cart.");
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      alert("Enter a coupon code first.");
+      return;
+    }
+
+    try {
+      const coupon = await applyCoupon(couponCode, checkoutItems);
+      setAppliedCoupon(coupon);
+    } catch (error) {
+      setAppliedCoupon(null);
+      alert(error.response?.data?.message || "Failed to apply coupon.");
     }
   };
 
@@ -95,10 +127,8 @@ function CartPage() {
       const { data } = await axios.post(
         `${API_URL}/payments/create-order`,
         {
-          items: cartItems.map((item) => ({
-            productId: item._id,
-            quantity: item.quantity,
-          })),
+          items: checkoutItems,
+          couponCode: appliedCoupon?.code,
         },
         { withCredentials: true }
       );
@@ -196,17 +226,28 @@ function CartPage() {
             </div>
           ))}
           <div className={styles.cartSummary}>
+            <div className={styles.couponRow}>
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(event) => setCouponCode(event.target.value)}
+                placeholder="Coupon code"
+              />
+              <button onClick={handleApplyCoupon}>Apply Coupon</button>
+            </div>
+            {appliedCoupon && (
+              <p className={styles.couponSuccess}>
+                Coupon {appliedCoupon.code} applied. You saved Rs.{" "}
+                {discountAmount}
+              </p>
+            )}
             <button className={styles.clearCart} onClick={clearCart}>
               Clear Cart
             </button>
             <div className={styles.totalAmount}>
-              <strong>
-                Total: Rs.{" "}
-                {cartItems.reduce(
-                  (sum, item) => sum + item.price * item.quantity,
-                  0
-                )}
-              </strong>
+              <p>Subtotal: Rs. {subtotal}</p>
+              {discountAmount > 0 && <p>Discount: - Rs. {discountAmount}</p>}
+              <strong>Total: Rs. {totalAmount}</strong>
             </div>
             <button
               className={styles.checkoutButton}

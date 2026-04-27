@@ -6,6 +6,7 @@ import Order from "../models/order.model.js";
 import Payment from "../models/payment.model.js";
 import Product from "../models/product.model.js";
 import { verifyUser } from "../middleware/auth.middleware.js";
+import { calculateCouponDiscount } from "../utils/coupon.js";
 
 const router = Router();
 
@@ -63,12 +64,22 @@ router.use(verifyUser);
 
 router.post("/create-order", async (req, res) => {
   try {
-    const { products, totalAmount } = await buildOrderProducts(req.body.items);
+    const { products, totalAmount: subtotal } = await buildOrderProducts(
+      req.body.items
+    );
+    const { coupon, discountAmount } = await calculateCouponDiscount(
+      req.body.couponCode,
+      subtotal
+    );
+    const totalAmount = subtotal - discountAmount;
     const razorpay = getRazorpay();
 
     const order = await Order.create({
       userId: req.user.id,
       products,
+      subtotal,
+      discountAmount,
+      couponCode: coupon?.code,
       totalPrice: totalAmount,
       status: "pending",
     });

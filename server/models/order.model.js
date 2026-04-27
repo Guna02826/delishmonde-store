@@ -16,6 +16,9 @@ const OrderSchema = new Schema({
       quantity: { type: Number, required: true, min: 1 },
     },
   ],
+  subtotal: { type: Number, required: true, min: 0 },
+  discountAmount: { type: Number, default: 0, min: 0 },
+  couponCode: { type: String },
   totalPrice: { type: Number, required: true, min: 0 },
   status: {
     type: String,

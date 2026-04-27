@@ -36,6 +36,8 @@ export const newOrder = async (req, res) => {
     const order = new Order({
       userId: req.user.id,
       products,
+      subtotal: totalAmount,
+      discountAmount: 0,
       totalPrice: totalAmount,
     });
 

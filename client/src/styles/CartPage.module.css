@@ -41,6 +41,33 @@
   font-weight: bold;
 }
 
+.couponRow {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 16px 0 8px;
+}
+
+.couponRow input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.couponRow button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background: #ff5722;
+  color: white;
+  cursor: pointer;
+}
+
+.couponSuccess {
+  color: green;
+  font-weight: bold;
+}
+
 .menuButton {
   background: #ff5722;
   color: white;

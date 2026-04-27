@@ -8,6 +8,12 @@ const AdminDashboardPage = () => {
   const [summary, setSummary] = useState({});
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [coupons, setCoupons] = useState([]);
+  const [couponForm, setCouponForm] = useState({
+    code: "",
+    discountType: "fixed",
+    value: "",
+  });
   const [selectedUserOrders, setSelectedUserOrders] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,15 +24,17 @@ const AdminDashboardPage = () => {
       try {
         const config = { withCredentials: true };
 
-        const [summaryRes, usersRes, ordersRes] = await Promise.all([
+        const [summaryRes, usersRes, ordersRes, couponsRes] = await Promise.all([
           axios.get(`${API_URL}/admin/summary`, config),
           axios.get(`${API_URL}/admin/users`, config),
           axios.get(`${API_URL}/admin/orders`, config),
+          axios.get(`${API_URL}/coupons`, config),
         ]);
 
         setSummary(summaryRes.data);
         setUsers(usersRes.data);
         setOrders(ordersRes.data);
+        setCoupons(couponsRes.data);
       } catch (err) {
         console.error("Admin data load failed", err);
         alert("You are not authorized. Please login as admin.");
@@ -74,6 +82,27 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const createCoupon = async (event) => {
+    event.preventDefault();
+
+    try {
+      const res = await axios.post(
+        `${API_URL}/coupons`,
+        {
+          ...couponForm,
+          value: Number(couponForm.value),
+        },
+        { withCredentials: true }
+      );
+
+      setCoupons((prev) => [res.data, ...prev]);
+      setCouponForm({ code: "", discountType: "fixed", value: "" });
+    } catch (err) {
+      console.error("Failed to create coupon", err);
+      alert(err.response?.data?.message || "Coupon creation failed");
+    }
+  };
+
   if (loading) return <p>Loading admin dashboard...</p>;
 
   return (
@@ -105,6 +134,52 @@ const AdminDashboardPage = () => {
               className={selectedUserId === user._id ? styles.activeUser : ""}
             >
               {user.username} ({user.email})
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className={styles.section}>
+        <h3>Coupons</h3>
+        <form onSubmit={createCoupon} className={styles.orderItem}>
+          <input
+            type="text"
+            value={couponForm.code}
+            onChange={(event) =>
+              setCouponForm((prev) => ({ ...prev, code: event.target.value }))
+            }
+            placeholder="Code"
+            required
+          />
+          <select
+            value={couponForm.discountType}
+            onChange={(event) =>
+              setCouponForm((prev) => ({
+                ...prev,
+                discountType: event.target.value,
+              }))
+            }
+          >
+            <option value="fixed">fixed</option>
+            <option value="percentage">percentage</option>
+          </select>
+          <input
+            type="number"
+            min="0"
+            value={couponForm.value}
+            onChange={(event) =>
+              setCouponForm((prev) => ({ ...prev, value: event.target.value }))
+            }
+            placeholder="Value"
+            required
+          />
+          <button type="submit">Add Coupon</button>
+        </form>
+        <ul className={styles.list}>
+          {coupons.map((coupon) => (
+            <li key={coupon._id}>
+              <strong>{coupon.code}</strong> - {coupon.discountType}{" "}
+              {coupon.value}
             </li>
           ))}
         </ul>

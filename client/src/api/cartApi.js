@@ -35,3 +35,13 @@ export const clearCart = async () => {
 
   return response.data;
 };
+
+export const applyCoupon = async (couponCode, items) => {
+  const response = await axios.post(
+    `${API_URL}/coupons/apply`,
+    { couponCode, items },
+    { withCredentials: true }
+  );
+
+  return response.data;
+};
