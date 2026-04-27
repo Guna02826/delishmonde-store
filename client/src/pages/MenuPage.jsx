@@ -18,6 +18,22 @@ function MenuPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [headerHeight, setHeaderHeight] = useState(64);
+
+  // Dynamically track header height so sticky filters never overlap on mobile/tablet
+  useEffect(() => {
+    const headerEl = document.querySelector('header');
+    if (!headerEl) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setHeaderHeight(entry.target.offsetHeight);
+      }
+    });
+
+    observer.observe(headerEl);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -76,7 +92,10 @@ function MenuPage() {
 
   return (
     <div className={styles.menuContainer}>
-      <div className={styles.filters}>
+      <div 
+        className={styles.filters} 
+        style={{ top: `${headerHeight}px` }}
+      >
         <input
           type="text"
           name="search"
@@ -191,11 +210,12 @@ function FoodItem({ food }) {
 
   return (
     <div className={styles.food}>
-      <h3>{food.name}</h3>
       <img
         src={productImage}
         alt={food.name || "Food item"}
+        loading="lazy"
       />
+      <h3>{food.name}</h3>
       <p className={styles.desc}>{food.description}</p>
       <b>₹{food.price}</b>
       <div className={styles.quantityContainer}>

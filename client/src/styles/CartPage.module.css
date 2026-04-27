@@ -1,78 +1,238 @@
+/* ── Cart Container ── */
 .cartContainer {
-  padding: 20px;
-  max-width: 600px;
-  margin: auto;
+  max-width: var(--max-width-narrow);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md);
+}
+
+.cartContainer h2 {
+  font-size: var(--fs-h2);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-lg);
   text-align: center;
 }
 
+/* ── Cart Item Row ── */
 .cartItem {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background: #f8f8f8;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 8px;
+  gap: var(--space-md);
+  background: var(--color-surface);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
 }
 
 .cartItem img {
   width: 80px;
   height: 80px;
-  border-radius: 5px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
 }
 
+.cartItem h3 {
+  font-size: var(--fs-body);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.cartItem p {
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
+}
+
+.cartItem div {
+  flex: 1;
+  text-align: left;
+}
+
+/* ── Remove Button ── */
+.removeButton {
+  background: none;
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+  padding: var(--space-sm) var(--space-md);
+  min-height: var(--touch-min);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.removeButton:hover {
+  background: var(--color-error);
+  color: var(--color-text-on-dark);
+}
+
+/* ── Cart Summary ── */
+.cartSummary {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ── Action Buttons ── */
 .clearCart,
 .checkoutButton {
-  padding: 10px 15px;
-  margin: 10px;
+  padding: var(--space-sm) var(--space-lg);
+  min-height: var(--touch-min);
+  margin: var(--space-sm);
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-body);
+  font-weight: 700;
   cursor: pointer;
+  transition: background var(--transition-normal), transform var(--transition-fast);
 }
 
 .clearCart {
-  background: red;
-  color: white;
+  background: var(--color-error);
+  color: var(--color-text-on-dark);
+}
+
+.clearCart:hover {
+  background: var(--color-error-hover);
+  transform: translateY(-2px);
 }
 
 .checkoutButton {
-  background: green;
-  color: white;
-  font-weight: bold;
+  background: var(--color-success);
+  color: var(--color-text-on-dark);
 }
 
+.checkoutButton:hover {
+  background: var(--color-success-hover);
+  transform: translateY(-2px);
+}
+
+/* ── Total ── */
+.totalAmount {
+  text-align: center;
+  padding: var(--space-md) 0;
+  font-size: var(--fs-body);
+  color: var(--color-text-primary);
+}
+
+.totalAmount strong {
+  font-size: var(--fs-h3);
+  display: block;
+  margin-top: var(--space-sm);
+}
+
+/* ── Coupon ── */
 .couponRow {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   justify-content: center;
-  margin: 16px 0 8px;
+  margin-bottom: var(--space-md);
 }
 
 .couponRow input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: var(--space-sm) var(--space-md);
+  min-height: var(--touch-min);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-small);
+  color: var(--color-text-primary);
+  flex: 1;
+  max-width: 240px;
+}
+
+.couponRow input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .couponRow button {
-  padding: 10px 15px;
+  padding: var(--space-sm) var(--space-md);
+  min-height: var(--touch-min);
   border: none;
-  border-radius: 5px;
-  background: #ff5722;
-  color: white;
+  border-radius: var(--radius-sm);
+  background: var(--color-cta);
+  color: var(--color-text-on-dark);
+  font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-normal);
+}
+
+.couponRow button:hover {
+  background: var(--color-cta-hover);
 }
 
 .couponSuccess {
-  color: green;
-  font-weight: bold;
+  color: var(--color-success);
+  font-weight: 700;
+  font-size: var(--fs-small);
+  text-align: center;
+  margin-bottom: var(--space-md);
 }
 
+/* ── Menu Button (empty cart) ── */
 .menuButton {
-  background: #ff5722;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-on-dark);
   border: none;
-  border-radius: 5px;
+  padding: var(--space-sm) var(--space-xl);
+  min-height: var(--touch-min);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-body);
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+  margin-top: var(--space-md);
+  transition: background var(--transition-normal);
+}
+
+.menuButton:hover {
+  background: var(--color-primary-hover);
+}
+
+/* ── Tablet ── */
+@media (max-width: 768px) {
+  .clearCart,
+  .checkoutButton {
+    width: 100%;
+    margin: var(--space-sm) 0;
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .cartContainer {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .cartItem {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-sm);
+  }
+
+  .cartItem div {
+    text-align: center;
+  }
+
+  .cartItem img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .couponRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .couponRow input {
+    max-width: none;
+  }
+
+  .menuButton {
+    width: 100%;
+  }
 }

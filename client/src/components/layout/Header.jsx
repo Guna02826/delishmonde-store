@@ -14,77 +14,58 @@ function Header() {
   return (
     <>
       <header className={styles.header}>
-        <img src={delishMondeLogo} style={{ width: '200px', height: 'auto', borderRadius: '15%' }} alt="Delish Monde Logo" />
+        <div className={styles.logoContainer}>
+          <img src={delishMondeLogo} alt="Delish Monde Logo" />
+        </div>
 
-        <div>
+        <div className={styles.navContainer}>
           <h1>Delish Monde</h1>
-
-          {/* Login & Register Links */}
-          <div className={styles.loginSignup}>
-            <a href="/login">
-              <FontAwesomeIcon icon={faSignIn} className={styles.iconSpacing} />
-              Login
-            </a>
-            <span>|</span>
-            <a href="/register">
-              <FontAwesomeIcon
-                icon={faUserPlus}
-                className={styles.iconSpacing}
-              />
-              Register
-            </a>
-          </div>
-
-          {/* Navigation Menu */}
           <nav>
             <ul className={styles.navbar}>
               <li>
                 <a href="/">
-                  <FontAwesomeIcon
-                    icon={faHouse}
-                    className={styles.iconSpacing}
-                  />
+                  <FontAwesomeIcon icon={faHouse} className={styles.iconSpacing} />
                   Home
                 </a>
               </li>
               <li>
                 <a href="/menu">
-                  <FontAwesomeIcon
-                    icon={faList}
-                    className={styles.iconSpacing}
-                  />
+                  <FontAwesomeIcon icon={faList} className={styles.iconSpacing} />
                   Menu
                 </a>
               </li>
               <li>
                 <a href="/cart">
-                  <FontAwesomeIcon
-                    icon={faCartShopping}
-                    className={styles.iconSpacing}
-                  />
+                  <FontAwesomeIcon icon={faCartShopping} className={styles.iconSpacing} />
                   Cart
                 </a>
               </li>
               <li>
                 <a href="/order-history">
-                  <FontAwesomeIcon
-                    icon={faHistory}
-                    className={styles.iconSpacing}
-                  />
+                  <FontAwesomeIcon icon={faHistory} className={styles.iconSpacing} />
                   Order History
                 </a>
               </li>
               <li>
                 <a href="/profile">
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    className={styles.iconSpacing}
-                  />
+                  <FontAwesomeIcon icon={faUser} className={styles.iconSpacing} />
                   Profile
                 </a>
               </li>
             </ul>
           </nav>
+        </div>
+
+        <div className={styles.loginSignup}>
+          <a href="/login">
+            <FontAwesomeIcon icon={faSignIn} className={styles.iconSpacing} />
+            Login
+          </a>
+          <span>|</span>
+          <a href="/register">
+            <FontAwesomeIcon icon={faUserPlus} className={styles.iconSpacing} />
+            Register
+          </a>
         </div>
       </header>
     </>

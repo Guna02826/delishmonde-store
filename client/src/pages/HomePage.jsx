@@ -76,14 +76,14 @@ function FoodItem({ food }) {
 
   return (
     <div className={styles.food}>
-      <h3>{food.name}</h3>
       <img
         src={productImage}
         alt={food.name}
         loading="lazy"
       />
+      <h3>{food.name}</h3>
       <p className={styles.desc}>{food.description}</p>
-      <b>Rs. {food.price}</b>
+      <b>₹{food.price}</b>
 
       <div className={styles.quantityContainer}>
         <button

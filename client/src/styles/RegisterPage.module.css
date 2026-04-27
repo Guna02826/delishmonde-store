@@ -1,75 +1,82 @@
-/* RegisterPage.module.css */
-
-/* 🌟 Container */
+/* ── Register Container ── */
 .registerContainer {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 30px 25px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: var(--max-width-form);
+  margin: var(--space-2xl) auto;
+  padding: var(--space-xl);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   text-align: center;
-  font-family: Arial, sans-serif;
 }
 
-/* 📝 Form Fields */
+/* ── Form ── */
 form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
 }
 
 label {
-  font-weight: bold;
-  color: #555;
+  font-weight: 700;
+  color: var(--color-text-secondary);
   text-align: left;
-  font-size: 14px;
+  font-size: var(--fs-small);
 }
 
 input {
-  padding: 10px 12px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: var(--space-sm) var(--space-md);
+  min-height: var(--touch-min);
+  font-size: var(--fs-body);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   box-sizing: border-box;
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast);
 }
 
-/* 🚀 Button */
+input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* ── Button ── */
 button {
-  background-color: green;
-  color: white;
-  padding: 12px;
-  font-size: 16px;
-  font-weight: bold;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-dark);
+  padding: var(--space-sm) var(--space-md);
+  min-height: var(--touch-min);
+  font-size: var(--fs-body);
+  font-weight: 700;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background var(--transition-normal);
 }
 
 button:hover {
-  background-color: #007f00;
+  background-color: var(--color-primary-hover);
 }
 
-/* ❗ Error Text */
+/* ── Error ── */
 .error {
-  color: #ff4d4d;
-  margin-top: 10px;
-  font-weight: bold;
-  font-size: 14px;
+  color: var(--color-error);
+  margin-top: var(--space-sm);
+  font-weight: 700;
+  font-size: var(--fs-small);
 }
 
-/* 📌 Login Link */
+/* ── Login Link ── */
 p {
-  margin-top: 20px;
-  font-size: 14px;
-  color: #333;
+  margin-top: var(--space-lg);
+  font-size: var(--fs-small);
+  color: var(--color-text-secondary);
 }
 
 a {
-  color: green;
-  font-weight: bold;
+  color: var(--color-primary);
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -77,15 +84,10 @@ a:hover {
   text-decoration: underline;
 }
 
-/* 📱 Responsive */
+/* ── Mobile ── */
 @media (max-width: 480px) {
   .registerContainer {
-    margin: 20px;
-    padding: 20px;
-  }
-
-  input,
-  button {
-    font-size: 14px;
+    margin: var(--space-lg) var(--space-sm);
+    padding: var(--space-lg);
   }
 }

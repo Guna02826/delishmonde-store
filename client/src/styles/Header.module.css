@@ -1,112 +1,183 @@
-/* Base styles */
+/* ── Header ── */
 .header {
-  position: relative; /* Establishes a positioning context for .loginSignup */
-  text-align: center;
-  background-color: #d7c1a3;
-  padding: 16px; /* Slightly increased padding for more breathing room */
-  border-radius: 5px;
-  margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-primary);
+  padding: var(--space-md) var(--space-lg);
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-md);
+  box-shadow: var(--shadow-card);
+}
+
+/* ── Logo ── */
+.logoContainer {
+  justify-self: start;
+}
+
+.header img {
+  width: 140px;
+  height: auto;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+/* ── Nav Container ── */
+.navContainer {
+  justify-self: center;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
 }
 
-/* 🔹 Fix Login/Register Layout */
+.navContainer h1 {
+  color: var(--color-text-on-dark);
+  font-size: var(--fs-h2);
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* ── Login/Register ── */
 .loginSignup {
+  justify-self: end;
   display: flex;
-  gap: 12px; /* Adds space between Login and Register */
+  gap: var(--space-sm);
   align-items: center;
-  position: absolute;
-  top: 8px;
-  right: 16px;
+  color: var(--color-text-on-dark);
 }
 
 .loginSignup a {
-  font-size: 14px;
-  color: #6f4f37;
+  font-size: var(--fs-small);
+  color: var(--color-text-on-dark);
   text-decoration: none;
+  opacity: 0.85;
+  padding: var(--space-xs) var(--space-sm);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  transition: opacity var(--transition-fast);
 }
 
 .loginSignup a:hover {
+  opacity: 1;
   text-decoration: underline;
 }
 
-/* 🔹 Navigation Styling */
+/* ── Navigation ── */
 .navbar {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
   list-style: none;
   padding: 0;
-  margin: 12px 0 0 0;
-  gap: 16px; /* Ensures consistent spacing */
+  margin: var(--space-sm) 0 0 0;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
 }
 
 .navbar li {
-  margin: 0 8px;
+  margin: 0;
 }
 
 .navbar a {
   text-decoration: none;
-  color: #6f4f37;
-  font-size: 16px;
-  transition: color 0.3s ease, transform 0.3s ease;
+  color: var(--color-text-on-dark);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  padding: var(--space-sm) var(--space-md);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-normal), opacity var(--transition-normal);
 }
 
 .navbar a:hover {
-  color: hsla(26, 34%, 43%, 0.8);
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.12);
+  opacity: 0.95;
 }
 
-/* 🔹 Icon Spacing */
+/* ── Icon Spacing ── */
 .iconSpacing {
-  margin-right: 8px;
+  margin-right: var(--space-sm);
 }
 
-/* 📱 Responsive adjustments for devices up to 768px wide */
+/* ── Tablet (< 768px) ── */
 @media screen and (max-width: 768px) {
   .header {
-    flex-direction: column;
-    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm) var(--space-md);
+    /* Removing position: relative so it inherits position: sticky from base! */
+  }
+
+  .header img {
+    width: 100px;
+  }
+
+  .navContainer {
+    order: 3;
+    width: 100%;
+    margin-top: var(--space-sm);
+  }
+
+  /* Hide the text title on mobile to save vertical space; logo is sufficient */
+  .navContainer h1 {
+    display: none;
   }
 
   .loginSignup {
-    position: static; /* Prevents overlapping */
-    justify-content: center;
-    margin-top: 8px;
-  }
-
-  .loginSignup a {
-    font-size: 12px;
+    order: 2;
+    position: static;
   }
 
   .navbar {
-    flex-direction: column;
-    gap: 8px; /* Space between nav items when stacked vertically */
-    margin-top: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: 0;
   }
 
   .navbar a {
-    font-size: 14px;
+    font-size: var(--fs-xs);
+    padding: var(--space-xs) var(--space-sm);
   }
 }
 
-/* 📱 Further adjustments for devices up to 480px wide */
+/* ── Mobile (< 480px) ── */
 @media screen and (max-width: 480px) {
   .header {
-    padding: 8px;
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .header img {
+    width: 80px;
   }
 
   .loginSignup {
-    flex-direction: column; /* Stacks Login & Register links */
-    gap: 6px;
+    flex-direction: row;
+    gap: var(--space-xs);
   }
 
   .loginSignup a {
-    font-size: 10px;
+    font-size: var(--fs-xs);
+    padding: var(--space-xs);
+  }
+
+  .navbar {
+    flex-direction: row;
+    gap: var(--space-xs);
+    justify-content: center;
   }
 
   .navbar a {
-    font-size: 12px;
+    font-size: var(--fs-xs);
+    width: auto;
+    padding: var(--space-xs);
   }
 }
