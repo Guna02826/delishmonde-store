@@ -2,7 +2,9 @@ import styles from "../styles/HomePage.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import image from "../assets/images/Bakery-background.jpg"
+import image from "../assets/images/Bakery-background.jpg";
+import { addCartItem } from "../api/cartApi";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Homepage() {
@@ -25,12 +27,7 @@ function Homepage() {
 
   return (
     <div className={styles.hero}>
-      <img
-        className={styles.heroImg}
-        src= {image} 
-        alt="Bakery"
-        loading="lazy"
-      />
+      <img className={styles.heroImg} src={image} alt="Bakery" loading="lazy" />
 
       <h1 className={styles.heroTitle}>
         Freshly Baked, From Our Oven to Your Table
@@ -47,7 +44,6 @@ function Homepage() {
         Order Now
       </button>
 
-      {/* Best Sellers Section */}
       <h2 className={styles.bestSellerTitle}>Best Sellers</h2>
       <div className={styles.bestSellerGrid}>
         {bestSellers.map((food) => (
@@ -58,38 +54,42 @@ function Homepage() {
   );
 }
 
-// FoodItem Component (Fixed)
 function FoodItem({ food }) {
-  const [quantity, setQuantity] = useState(1); // ✅ Added useState for quantity
+  const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
 
-  const addToCart = (food) => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const existingItem = cart.find((item) => item._id === food._id);
+  const addToCart = async () => {
+    try {
+      await addCartItem(food._id, quantity);
+      alert(`${quantity} x ${food.name} added to cart!`);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        alert("Please log in to add items to your cart.");
+        navigate("/login");
+        return;
+      }
 
-    if (existingItem) {
-      existingItem.quantity += quantity; // Increase existing quantity
-    } else {
-      cart.push({ ...food, quantity }); // Add new item with selected quantity
+      alert(error.response?.data?.message || "Failed to add item to cart.");
     }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert(`${quantity} x ${food.name} added to cart!`);
   };
 
   return (
     <div className={styles.food}>
       <h3>{food.name}</h3>
-      <img src={food.image || "https://placehold.co/150"} alt={food.name} loading="lazy" />
+      <img
+        src={food.image || "https://placehold.co/150"}
+        alt={food.name}
+        loading="lazy"
+      />
       <p className={styles.desc}>{food.description}</p>
-      <b>₹{food.price}</b>
+      <b>Rs. {food.price}</b>
 
-      {/* Quantity Controls */}
       <div className={styles.quantityContainer}>
         <button
           className={styles.quantityButton}
           onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
         >
-          −
+          -
         </button>
         <span className={styles.quantity}>{quantity}</span>
         <button
@@ -99,8 +99,8 @@ function FoodItem({ food }) {
           +
         </button>
       </div>
-<br />
-      <button className={styles.addToCart} onClick={() => addToCart(food)}>
+      <br />
+      <button className={styles.addToCart} onClick={addToCart}>
         Add to Cart
       </button>
     </div>

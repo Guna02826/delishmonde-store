@@ -1,6 +1,8 @@
 import styles from "../styles/MenuPage.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { addCartItem } from "../api/cartApi";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -68,20 +70,22 @@ const categorizeFoods = (foods) => {
 function FoodItem({ food }) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const navigate = useNavigate();
 
-  const addToCart = (food) => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const existingItem = cart.find((item) => item._id === food._id);
+  const addToCart = async () => {
+    try {
+      await addCartItem(food._id, quantity);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1500);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        alert("Please log in to add items to your cart.");
+        navigate("/login");
+        return;
+      }
 
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      cart.push({ ...food, quantity });
+      alert(error.response?.data?.message || "Failed to add item to cart.");
     }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
   };
 
   return (
@@ -108,7 +112,7 @@ function FoodItem({ food }) {
           +
         </button>
       </div>
-      <button className={styles.addToCart} onClick={() => addToCart(food)}>
+      <button className={styles.addToCart} onClick={addToCart}>
         {added ? "Added ✅" : "Add to Cart"}
       </button>
     </div>

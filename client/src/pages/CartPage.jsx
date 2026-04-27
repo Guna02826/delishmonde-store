@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/CartPage.module.css";
 import axios from "axios";
+import {
+  clearCart as clearCartApi,
+  getCart,
+  removeCartItem,
+} from "../api/cartApi";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,36 +24,59 @@ const loadRazorpayScript = () =>
     document.body.appendChild(script);
   });
 
+const formatCartItems = (cart) =>
+  cart.items
+    .filter((item) => item.productId)
+    .map((item) => ({
+      ...item.productId,
+      quantity: item.quantity,
+    }));
+
 function CartPage() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartItems(storedCart);
+    const loadCart = async () => {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser) setUser(storedUser);
 
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) setUser(storedUser);
+      try {
+        const cart = await getCart();
+        setCartItems(formatCartItems(cart));
+      } catch (error) {
+        if (error.response?.status === 401) {
+          navigate("/login");
+          return;
+        }
 
-    const syncCart = () => {
-      const updatedCart = JSON.parse(localStorage.getItem("cart")) || [];
-      setCartItems(updatedCart);
+        alert(error.response?.data?.message || "Failed to load cart.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    window.addEventListener("storage", syncCart);
-    return () => window.removeEventListener("storage", syncCart);
-  }, []);
+    loadCart();
+  }, [navigate]);
 
-  const removeFromCart = (productId) => {
-    const updatedCart = cartItems.filter((item) => item._id !== productId);
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  const removeFromCart = async (productId) => {
+    try {
+      const cart = await removeCartItem(productId);
+      setCartItems(formatCartItems(cart));
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to remove item.");
+    }
   };
 
-  const clearCart = () => {
-    setCartItems([]);
-    localStorage.removeItem("cart");
+  const clearCart = async () => {
+    try {
+      await clearCartApi();
+      setCartItems([]);
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to clear cart.");
+    }
   };
 
   const handleCheckout = async () => {
@@ -100,7 +128,7 @@ function CartPage() {
             );
 
             alert("Payment successful! Order placed.");
-            clearCart();
+            await clearCart();
             navigate("/order-success");
           } catch (error) {
             console.error("Payment verification error", error);
@@ -130,6 +158,8 @@ function CartPage() {
     }
   };
 
+  if (loading) return <p className={styles.cartContainer}>Loading cart...</p>;
+
   return (
     <div className={styles.cartContainer}>
       <h2>Shopping Cart</h2>
@@ -154,7 +184,7 @@ function CartPage() {
               <div>
                 <h3>{item.name}</h3>
                 <p>
-                  ₹{item.price} x {item.quantity}
+                  Rs. {item.price} x {item.quantity}
                 </p>
               </div>
               <button
@@ -171,7 +201,7 @@ function CartPage() {
             </button>
             <div className={styles.totalAmount}>
               <strong>
-                Total: ₹
+                Total: Rs.{" "}
                 {cartItems.reduce(
                   (sum, item) => sum + item.price * item.quantity,
                   0
