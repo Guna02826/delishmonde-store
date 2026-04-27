@@ -7,6 +7,7 @@ import {
   clearCart as clearCartApi,
   getCart,
   removeCartItem,
+  updateCartItem,
 } from "../api/cartApi";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -82,6 +83,18 @@ function CartPage() {
       setAppliedCoupon(null);
     } catch (error) {
       alert(error.response?.data?.message || "Failed to remove item.");
+    }
+  };
+
+  const updateQuantity = async (item, quantity) => {
+    if (quantity < 1 || quantity > item.stock) return;
+
+    try {
+      const cart = await updateCartItem(item._id, quantity);
+      setCartItems(formatCartItems(cart));
+      setAppliedCoupon(null);
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to update quantity.");
     }
   };
 
@@ -213,11 +226,33 @@ function CartPage() {
                 src={item.images?.[0] || item.image || "https://placehold.co/100"}
                 alt={item.name}
               />
-              <div>
+              <div className={styles.itemDetails}>
                 <h3>{item.name}</h3>
                 <p>
                   Rs. {item.price} x {item.quantity}
                 </p>
+                <div className={styles.quantityControls}>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                    aria-label={`Decrease ${item.name} quantity`}
+                  >
+                    -
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item, item.quantity + 1)}
+                    disabled={item.quantity >= item.stock}
+                    aria-label={`Increase ${item.name} quantity`}
+                  >
+                    +
+                  </button>
+                </div>
+                {item.quantity >= item.stock && (
+                  <p className={styles.stockLimit}>Stock limit reached</p>
+                )}
               </div>
               <button
                 onClick={() => removeFromCart(item._id)}

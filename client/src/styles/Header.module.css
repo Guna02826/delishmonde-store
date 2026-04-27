@@ -49,7 +49,8 @@
   color: var(--color-text-on-dark);
 }
 
-.loginSignup a {
+.loginSignup a,
+.loginSignup button {
   font-size: var(--fs-small);
   color: var(--color-text-on-dark);
   text-decoration: none;
@@ -58,12 +59,26 @@
   min-height: var(--touch-min);
   display: inline-flex;
   align-items: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
   transition: opacity var(--transition-fast);
 }
 
-.loginSignup a:hover {
+.loginSignup a:hover,
+.loginSignup button:hover {
   opacity: 1;
   text-decoration: underline;
+}
+
+.userName {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Navigation ── */
@@ -164,7 +179,9 @@
     gap: var(--space-xs);
   }
 
-  .loginSignup a {
+  .loginSignup a,
+  .loginSignup button,
+  .userName {
     font-size: var(--fs-xs);
     padding: var(--space-xs);
   }

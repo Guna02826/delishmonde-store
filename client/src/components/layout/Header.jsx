@@ -1,5 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
+  faGauge,
   faHouse,
   faList,
   faCartShopping,
@@ -7,10 +10,43 @@ import {
   faHistory,
   faUserPlus,
   faSignIn,
+  faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "../../styles/Header.module.css";
-import delishMondeLogo from "../../assets/images/Delish Monde - Logo.png"
+import delishMondeLogo from "../../assets/images/Delish Monde - Logo.png";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const getStoredUser = () => {
+  try {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch (error) {
+    console.error("Invalid user data in storage", error);
+    localStorage.removeItem("user");
+    return null;
+  }
+};
+
 function Header() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const user = getStoredUser();
+
+  const handleLogout = async () => {
+    try {
+      await axios.delete(`${API_URL}/users/sessions`, {
+        withCredentials: true,
+      });
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      localStorage.removeItem("user");
+      localStorage.removeItem("isAdmin");
+      navigate("/login");
+    }
+  };
+
   return (
     <>
       <header className={styles.header}>
@@ -23,49 +59,82 @@ function Header() {
           <nav>
             <ul className={styles.navbar}>
               <li>
-                <a href="/">
+                <NavLink to="/">
                   <FontAwesomeIcon icon={faHouse} className={styles.iconSpacing} />
                   Home
-                </a>
+                </NavLink>
               </li>
               <li>
-                <a href="/menu">
+                <NavLink to="/menu">
                   <FontAwesomeIcon icon={faList} className={styles.iconSpacing} />
                   Menu
-                </a>
+                </NavLink>
               </li>
-              <li>
-                <a href="/cart">
-                  <FontAwesomeIcon icon={faCartShopping} className={styles.iconSpacing} />
-                  Cart
-                </a>
-              </li>
-              <li>
-                <a href="/order-history">
-                  <FontAwesomeIcon icon={faHistory} className={styles.iconSpacing} />
-                  Order History
-                </a>
-              </li>
-              <li>
-                <a href="/profile">
-                  <FontAwesomeIcon icon={faUser} className={styles.iconSpacing} />
-                  Profile
-                </a>
-              </li>
+              {user?.isAdmin && (
+                <li>
+                  <NavLink to="/admin">
+                    <FontAwesomeIcon icon={faGauge} className={styles.iconSpacing} />
+                    Admin
+                  </NavLink>
+                </li>
+              )}
+              {user && !user.isAdmin && (
+                <>
+                  <li>
+                    <NavLink to="/cart">
+                      <FontAwesomeIcon
+                        icon={faCartShopping}
+                        className={styles.iconSpacing}
+                      />
+                      Cart
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/order-history">
+                      <FontAwesomeIcon
+                        icon={faHistory}
+                        className={styles.iconSpacing}
+                      />
+                      Order History
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/profile">
+                      <FontAwesomeIcon icon={faUser} className={styles.iconSpacing} />
+                      Profile
+                    </NavLink>
+                  </li>
+                </>
+              )}
             </ul>
           </nav>
         </div>
 
         <div className={styles.loginSignup}>
-          <a href="/login">
-            <FontAwesomeIcon icon={faSignIn} className={styles.iconSpacing} />
-            Login
-          </a>
-          <span>|</span>
-          <a href="/register">
-            <FontAwesomeIcon icon={faUserPlus} className={styles.iconSpacing} />
-            Register
-          </a>
+          {user ? (
+            <>
+              <span className={styles.userName}>{user.username}</span>
+              <button type="button" onClick={handleLogout}>
+                <FontAwesomeIcon
+                  icon={faRightFromBracket}
+                  className={styles.iconSpacing}
+                />
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" state={{ from: location.pathname }}>
+                <FontAwesomeIcon icon={faSignIn} className={styles.iconSpacing} />
+                Login
+              </NavLink>
+              <span>|</span>
+              <NavLink to="/register">
+                <FontAwesomeIcon icon={faUserPlus} className={styles.iconSpacing} />
+                Register
+              </NavLink>
+            </>
+          )}
         </div>
       </header>
     </>

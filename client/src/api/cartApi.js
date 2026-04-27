@@ -28,6 +28,16 @@ export const removeCartItem = async (productId) => {
   return response.data;
 };
 
+export const updateCartItem = async (productId, quantity) => {
+  const response = await axios.put(
+    `${API_URL}/cart/items/${productId}`,
+    { quantity },
+    { withCredentials: true }
+  );
+
+  return response.data;
+};
+
 export const clearCart = async () => {
   const response = await axios.delete(`${API_URL}/cart`, {
     withCredentials: true,
