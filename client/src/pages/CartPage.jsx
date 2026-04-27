@@ -208,7 +208,7 @@ function CartPage() {
           {cartItems.map((item) => (
             <div key={item._id} className={styles.cartItem}>
               <img
-                src={item.image || "https://placehold.co/100"}
+                src={item.images?.[0] || item.image || "https://placehold.co/100"}
                 alt={item.name}
               />
               <div>

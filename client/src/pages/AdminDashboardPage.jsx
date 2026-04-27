@@ -10,7 +10,7 @@ const emptyProductForm = {
   price: "",
   stock: "",
   description: "",
-  image: "",
+  images: "",
 };
 
 const AdminDashboardPage = () => {
@@ -132,7 +132,10 @@ const AdminDashboardPage = () => {
     price: Number(productForm.price),
     stock: Number(productForm.stock),
     description: productForm.description,
-    image: productForm.image,
+    images: productForm.images
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean),
   });
 
   const saveProduct = async (event) => {
@@ -179,7 +182,9 @@ const AdminDashboardPage = () => {
       price: product.price ?? "",
       stock: product.stock ?? "",
       description: product.description || "",
-      image: product.image || "",
+      images: Array.isArray(product.images)
+        ? product.images.join(", ")
+        : product.image || "",
     });
   };
 
@@ -325,10 +330,10 @@ const AdminDashboardPage = () => {
           />
           <input
             type="text"
-            name="image"
-            value={productForm.image}
+            name="images"
+            value={productForm.images}
             onChange={handleProductChange}
-            placeholder="Image URL"
+            placeholder="Image URLs, comma separated, max 3"
           />
           <textarea
             name="description"

@@ -7,7 +7,7 @@ import { verifyUser } from "../middleware/auth.middleware.js";
 const router = Router();
 
 const populateCart = (query) =>
-  query.populate("items.productId", "name price image description category stock");
+  query.populate("items.productId", "name price images description category stock");
 
 const getOrCreateCart = async (userId) => {
   let cart = await Cart.findOne({ userId });

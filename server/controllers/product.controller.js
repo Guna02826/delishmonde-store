@@ -1,8 +1,46 @@
 import Product from "../models/product.model.js";
 
+const formatImages = (images, image) => {
+  if (Array.isArray(images)) {
+    return images.map((item) => item.trim()).filter(Boolean);
+  }
+
+  if (typeof images === "string") {
+    return images
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return image ? [image] : [];
+};
+
 export const getProducts = async (req, res) => {
   try {
-    const cakes = await Product.find();
+    const { search, category, minPrice, maxPrice } = req.query;
+    const filter = {};
+
+    if (search) {
+      filter.name = { $regex: search, $options: "i" };
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+
+      if (minPrice) {
+        filter.price.$gte = Number(minPrice);
+      }
+
+      if (maxPrice) {
+        filter.price.$lte = Number(maxPrice);
+      }
+    }
+
+    const cakes = await Product.find(filter);
     res.json(cakes);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -11,7 +49,8 @@ export const getProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, category, price, stock, description, image } = req.body;
+    const { name, category, price, stock, description, images, image } =
+      req.body;
 
     const newProduct = new Product({
       name,
@@ -19,7 +58,7 @@ export const createProduct = async (req, res) => {
       price,
       stock,
       description,
-      image,
+      images: formatImages(images, image),
     });
 
     const savedProduct = await newProduct.save();
@@ -31,8 +70,16 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    const updateData = {
+      ...req.body,
+      images: formatImages(req.body.images, req.body.image),
+    };
+
+    delete updateData.image;
+
+    const updated = await Product.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
+      runValidators: true,
     });
 
     if (!updated) return res.status(404).json({ message: "Product not found" });

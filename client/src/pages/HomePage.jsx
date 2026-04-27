@@ -57,6 +57,7 @@ function Homepage() {
 function FoodItem({ food }) {
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
+  const productImage = food.images?.[0] || food.image || "https://placehold.co/150";
 
   const addToCart = async () => {
     try {
@@ -77,7 +78,7 @@ function FoodItem({ food }) {
     <div className={styles.food}>
       <h3>{food.name}</h3>
       <img
-        src={food.image || "https://placehold.co/150"}
+        src={productImage}
         alt={food.name}
         loading="lazy"
       />

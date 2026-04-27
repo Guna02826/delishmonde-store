@@ -5,6 +5,34 @@
   padding: 20px;
 }
 
+.filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.filters input,
+.filters select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.filters button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background: #ff5722;
+  color: white;
+  cursor: pointer;
+}
+
+.empty {
+  color: #666;
+  text-align: center;
+}
+
 /* Category Section */
 .categorySection:not(:last-child) {
   border-bottom: 1px solid #eee;
@@ -126,4 +154,10 @@
 .addToCart:hover {
   background: #e64a19;
   transform: scale(1.05);
+}
+
+@media (max-width: 800px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
 }
