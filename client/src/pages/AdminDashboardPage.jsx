@@ -4,10 +4,22 @@ import styles from "../styles/AdminDashboardPage.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const emptyProductForm = {
+  name: "",
+  category: "",
+  price: "",
+  stock: "",
+  description: "",
+  image: "",
+};
+
 const AdminDashboardPage = () => {
   const [summary, setSummary] = useState({});
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [productForm, setProductForm] = useState(emptyProductForm);
+  const [editingProductId, setEditingProductId] = useState(null);
   const [coupons, setCoupons] = useState([]);
   const [couponForm, setCouponForm] = useState({
     code: "",
@@ -24,17 +36,20 @@ const AdminDashboardPage = () => {
       try {
         const config = { withCredentials: true };
 
-        const [summaryRes, usersRes, ordersRes, couponsRes] = await Promise.all([
+        const [summaryRes, usersRes, ordersRes, couponsRes, productsRes] =
+          await Promise.all([
           axios.get(`${API_URL}/admin/summary`, config),
           axios.get(`${API_URL}/admin/users`, config),
           axios.get(`${API_URL}/admin/orders`, config),
           axios.get(`${API_URL}/coupons`, config),
+          axios.get(`${API_URL}/products`, config),
         ]);
 
         setSummary(summaryRes.data);
         setUsers(usersRes.data);
         setOrders(ordersRes.data);
         setCoupons(couponsRes.data);
+        setProducts(productsRes.data);
       } catch (err) {
         console.error("Admin data load failed", err);
         alert("You are not authorized. Please login as admin.");
@@ -100,6 +115,92 @@ const AdminDashboardPage = () => {
     } catch (err) {
       console.error("Failed to create coupon", err);
       alert(err.response?.data?.message || "Coupon creation failed");
+    }
+  };
+
+  const handleProductChange = (event) => {
+    const { name, value } = event.target;
+    setProductForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const getProductPayload = () => ({
+    name: productForm.name,
+    category: productForm.category
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean),
+    price: Number(productForm.price),
+    stock: Number(productForm.stock),
+    description: productForm.description,
+    image: productForm.image,
+  });
+
+  const saveProduct = async (event) => {
+    event.preventDefault();
+
+    try {
+      const payload = getProductPayload();
+
+      if (editingProductId) {
+        const res = await axios.put(
+          `${API_URL}/products/${editingProductId}`,
+          payload,
+          { withCredentials: true }
+        );
+
+        setProducts((prev) =>
+          prev.map((product) =>
+            product._id === editingProductId ? res.data : product
+          )
+        );
+      } else {
+        const res = await axios.post(`${API_URL}/products`, payload, {
+          withCredentials: true,
+        });
+
+        setProducts((prev) => [...prev, res.data]);
+      }
+
+      setProductForm(emptyProductForm);
+      setEditingProductId(null);
+    } catch (err) {
+      console.error("Failed to save product", err);
+      alert(err.response?.data?.message || "Product save failed");
+    }
+  };
+
+  const editProduct = (product) => {
+    setEditingProductId(product._id);
+    setProductForm({
+      name: product.name || "",
+      category: Array.isArray(product.category)
+        ? product.category.join(", ")
+        : product.category || "",
+      price: product.price ?? "",
+      stock: product.stock ?? "",
+      description: product.description || "",
+      image: product.image || "",
+    });
+  };
+
+  const cancelProductEdit = () => {
+    setEditingProductId(null);
+    setProductForm(emptyProductForm);
+  };
+
+  const deleteProduct = async (productId) => {
+    const shouldDelete = window.confirm("Delete this product?");
+    if (!shouldDelete) return;
+
+    try {
+      await axios.delete(`${API_URL}/products/${productId}`, {
+        withCredentials: true,
+      });
+
+      setProducts((prev) => prev.filter((product) => product._id !== productId));
+    } catch (err) {
+      console.error("Failed to delete product", err);
+      alert(err.response?.data?.message || "Product delete failed");
     }
   };
 
@@ -180,6 +281,88 @@ const AdminDashboardPage = () => {
             <li key={coupon._id}>
               <strong>{coupon.code}</strong> - {coupon.discountType}{" "}
               {coupon.value}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className={styles.section}>
+        <h3>Products</h3>
+        <form onSubmit={saveProduct} className={styles.productForm}>
+          <input
+            type="text"
+            name="name"
+            value={productForm.name}
+            onChange={handleProductChange}
+            placeholder="Name"
+            required
+          />
+          <input
+            type="text"
+            name="category"
+            value={productForm.category}
+            onChange={handleProductChange}
+            placeholder="Categories, comma separated"
+            required
+          />
+          <input
+            type="number"
+            name="price"
+            min="0"
+            value={productForm.price}
+            onChange={handleProductChange}
+            placeholder="Price"
+            required
+          />
+          <input
+            type="number"
+            name="stock"
+            min="0"
+            value={productForm.stock}
+            onChange={handleProductChange}
+            placeholder="Stock"
+            required
+          />
+          <input
+            type="text"
+            name="image"
+            value={productForm.image}
+            onChange={handleProductChange}
+            placeholder="Image URL"
+          />
+          <textarea
+            name="description"
+            value={productForm.description}
+            onChange={handleProductChange}
+            placeholder="Description"
+          />
+          <div className={styles.formActions}>
+            <button type="submit">
+              {editingProductId ? "Update Product" : "Add Product"}
+            </button>
+            {editingProductId && (
+              <button type="button" onClick={cancelProductEdit}>
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+
+        <ul className={styles.list}>
+          {products.map((product) => (
+            <li key={product._id}>
+              <div className={styles.productItem}>
+                <span>
+                  <strong>{product.name}</strong> - Rs. {product.price} - Stock:{" "}
+                  {product.stock}
+                </span>
+                <div className={styles.productActions}>
+                  <button onClick={() => editProduct(product)}>Edit</button>
+                  <button onClick={() => deleteProduct(product._id)}>
+                    Delete
+                  </button>
+                </div>
+              </div>
             </li>
           ))}
         </ul>
