@@ -5,6 +5,20 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const loadRazorpayScript = () =>
+  new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
 function CartPage() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
@@ -43,29 +57,74 @@ function CartPage() {
       return navigate("/login");
     }
 
-    const orderData = {
-      items: cartItems.map((item) => ({
-        productId: item._id,
-        quantity: item.quantity,
-      })),
-      totalAmount: cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-      ),
-    };
+    const isRazorpayLoaded = await loadRazorpayScript();
+    if (!isRazorpayLoaded) {
+      alert("Unable to load Razorpay checkout. Please try again.");
+      return;
+    }
 
     try {
-      const res = await axios.post(`${API_URL}/orders`, orderData, {
-        withCredentials: true,
+      const { data } = await axios.post(
+        `${API_URL}/payments/create-order`,
+        {
+          items: cartItems.map((item) => ({
+            productId: item._id,
+            quantity: item.quantity,
+          })),
+        },
+        { withCredentials: true }
+      );
+
+      const checkout = new window.Razorpay({
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Delish Monde",
+        description: "Bakery order payment",
+        order_id: data.razorpayOrderId,
+        prefill: {
+          name: user.username,
+          email: user.email,
+        },
+        handler: async (response) => {
+          try {
+            await axios.post(
+              `${API_URL}/payments/verify`,
+              {
+                orderId: data.orderId,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              { withCredentials: true }
+            );
+
+            alert("Payment successful! Order placed.");
+            clearCart();
+            navigate("/order-success");
+          } catch (error) {
+            console.error("Payment verification error", error);
+            alert(
+              "Payment verification failed: " +
+                (error.response?.data?.message || error.message)
+            );
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            alert("Payment cancelled. Your order was not completed.");
+          },
+        },
+        theme: {
+          color: "#8b4513",
+        },
       });
 
-      alert("Order placed successfully!");
-      clearCart();
-      navigate("/order-success");
+      checkout.open();
     } catch (error) {
-      console.error("Order error", error);
+      console.error("Checkout error", error);
       alert(
-        "Error placing order: " +
+        "Error starting checkout: " +
           (error.response?.data?.message || error.message)
       );
     }

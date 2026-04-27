@@ -6,15 +6,18 @@ const PaymentSchema = new Schema({
   amount: { type: Number, required: true, min: 0 },
   method: {
     type: String,
-    enum: ["credit_card", "paypal", "bank_transfer", "cash_on_delivery"],
-    required: true,
+    enum: ["razorpay"],
+    default: "razorpay",
   },
   status: {
     type: String,
     enum: ["pending", "completed", "failed", "refunded"],
     default: "pending",
   },
-  transactionId: { type: String }, // Optional external reference
+  razorpayOrderId: { type: String, required: true },
+  razorpayPaymentId: { type: String },
+  razorpaySignature: { type: String },
+  transactionId: { type: String },
   paidAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
 });
