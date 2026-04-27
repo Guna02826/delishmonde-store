@@ -90,7 +90,7 @@ export const getUserProfile = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Internal Server Error", error: err.message });
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 

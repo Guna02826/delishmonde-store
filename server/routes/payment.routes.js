@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { Router } from "express";
+import mongoose from "mongoose";
 import Razorpay from "razorpay";
 
 import Order from "../models/order.model.js";
@@ -51,6 +52,14 @@ const buildOrderProducts = async (items) => {
       throw error;
     }
 
+    if (product.stock < quantity) {
+      const error = new Error(
+        `${product.name} has only ${product.stock} item(s) in stock`
+      );
+      error.statusCode = 409;
+      throw error;
+    }
+
     products.push({
       productId: product._id,
       quantity,
@@ -60,6 +69,22 @@ const buildOrderProducts = async (items) => {
   }
 
   return { products, totalAmount };
+};
+
+const decrementOrderStock = async (products, session) => {
+  for (const item of products) {
+    const result = await Product.updateOne(
+      { _id: item.productId, stock: { $gte: item.quantity } },
+      { $inc: { stock: -item.quantity } },
+      { session }
+    );
+
+    if (result.matchedCount !== 1) {
+      const error = new Error("One or more products no longer have enough stock");
+      error.statusCode = 409;
+      throw error;
+    }
+  }
 };
 
 router.use(verifyUser);
@@ -121,6 +146,8 @@ router.post("/create-order", async (req, res) => {
 });
 
 router.post("/verify", async (req, res) => {
+  const session = await mongoose.startSession();
+
   try {
     const {
       orderId,
@@ -154,35 +181,75 @@ router.post("/verify", async (req, res) => {
       return res.status(400).json({ message: "Invalid payment signature" });
     }
 
-    const payment = await Payment.findOneAndUpdate(
-      { order: orderId, razorpayOrderId: razorpay_order_id, user: req.user.id },
-      {
-        status: "completed",
-        razorpayPaymentId: razorpay_payment_id,
-        razorpaySignature: razorpay_signature,
-        transactionId: razorpay_payment_id,
-        paidAt: new Date(),
-      },
-      { new: true }
-    );
+    let payment;
+    let order;
+    let shouldSendInvoice = false;
 
-    if (!payment) {
-      return res.status(404).json({ message: "Payment record not found" });
-    }
+    await session.withTransaction(async () => {
+      payment = await Payment.findOne({
+        order: orderId,
+        razorpayOrderId: razorpay_order_id,
+        user: req.user.id,
+      }).session(session);
 
-    const order = await Order.findOneAndUpdate(
-      { _id: orderId, userId: req.user.id },
-      { status: "processing" },
-      { new: true }
-    ).populate("products.productId", "name price");
+      if (!payment) {
+        const error = new Error("Payment record not found");
+        error.statusCode = 404;
+        throw error;
+      }
 
-    // Clear purchased items from the user's cart after successful payment.
-    await Cart.findOneAndUpdate({ userId: req.user.id }, { items: [] });
+      if (payment.status === "completed") {
+        order = await Order.findOne({
+          _id: orderId,
+          userId: req.user.id,
+        }).session(session);
+        return;
+      }
 
-    try {
-      await sendInvoiceEmail({ to: req.user.email, order });
-    } catch (emailError) {
-      console.error("Invoice email failed:", emailError.message);
+      order = await Order.findOne({
+        _id: orderId,
+        userId: req.user.id,
+        status: "pending",
+      }).session(session);
+
+      if (!order) {
+        const error = new Error("Order not found or already processed");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      await decrementOrderStock(order.products, session);
+
+      payment.status = "completed";
+      payment.razorpayPaymentId = razorpay_payment_id;
+      payment.razorpaySignature = razorpay_signature;
+      payment.transactionId = razorpay_payment_id;
+      payment.paidAt = new Date();
+      await payment.save({ session });
+
+      order.status = "processing";
+      await order.save({ session });
+
+      await Cart.findOneAndUpdate(
+        { userId: req.user.id },
+        { items: [] },
+        { session }
+      );
+
+      shouldSendInvoice = true;
+    });
+
+    order = await Order.findOne({
+      _id: orderId,
+      userId: req.user.id,
+    }).populate("products.productId", "name price");
+
+    if (shouldSendInvoice) {
+      try {
+        await sendInvoiceEmail({ to: req.user.email, order });
+      } catch (emailError) {
+        console.error("Invoice email failed:", emailError.message);
+      }
     }
 
     res.json({
@@ -191,10 +258,12 @@ router.post("/verify", async (req, res) => {
       paymentId: payment._id,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       message: "Failed to verify payment",
       error: error.message,
     });
+  } finally {
+    await session.endSession();
   }
 });
 
