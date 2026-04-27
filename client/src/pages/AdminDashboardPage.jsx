@@ -13,6 +13,15 @@ const emptyProductForm = {
   images: "",
 };
 
+const emptyCouponForm = {
+  code: "",
+  discountType: "fixed",
+  value: "",
+  expiresAt: "",
+  maxUses: "",
+  isActive: true,
+};
+
 const AdminDashboardPage = () => {
   const [summary, setSummary] = useState({});
   const [users, setUsers] = useState([]);
@@ -21,11 +30,8 @@ const AdminDashboardPage = () => {
   const [productForm, setProductForm] = useState(emptyProductForm);
   const [editingProductId, setEditingProductId] = useState(null);
   const [coupons, setCoupons] = useState([]);
-  const [couponForm, setCouponForm] = useState({
-    code: "",
-    discountType: "fixed",
-    value: "",
-  });
+  const [couponForm, setCouponForm] = useState(emptyCouponForm);
+  const [editingCouponId, setEditingCouponId] = useState(null);
   const [selectedUserOrders, setSelectedUserOrders] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -97,24 +103,89 @@ const AdminDashboardPage = () => {
     }
   };
 
-  const createCoupon = async (event) => {
+  const handleCouponChange = (event) => {
+    const { name, value, checked, type } = event.target;
+
+    setCouponForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const getCouponPayload = () => ({
+    code: couponForm.code,
+    discountType: couponForm.discountType,
+    value: Number(couponForm.value),
+    expiresAt: couponForm.expiresAt || undefined,
+    maxUses: couponForm.maxUses ? Number(couponForm.maxUses) : undefined,
+    isActive: couponForm.isActive,
+  });
+
+  const saveCoupon = async (event) => {
     event.preventDefault();
 
     try {
-      const res = await axios.post(
-        `${API_URL}/coupons`,
-        {
-          ...couponForm,
-          value: Number(couponForm.value),
-        },
+      const payload = getCouponPayload();
+
+      if (editingCouponId) {
+        const res = await axios.put(
+          `${API_URL}/coupons/${editingCouponId}`,
+          payload,
+          { withCredentials: true }
+        );
+
+        setCoupons((prev) =>
+          prev.map((coupon) =>
+            coupon._id === editingCouponId ? res.data : coupon
+          )
+        );
+      } else {
+        const res = await axios.post(`${API_URL}/coupons`, payload, {
+          withCredentials: true,
+        });
+
+        setCoupons((prev) => [res.data, ...prev]);
+      }
+
+      setCouponForm(emptyCouponForm);
+      setEditingCouponId(null);
+    } catch (err) {
+      console.error("Failed to save coupon", err);
+      alert(err.response?.data?.message || "Coupon save failed");
+    }
+  };
+
+  const editCoupon = (coupon) => {
+    setEditingCouponId(coupon._id);
+    setCouponForm({
+      code: coupon.code || "",
+      discountType: coupon.discountType || "fixed",
+      value: coupon.value ?? "",
+      expiresAt: coupon.expiresAt ? coupon.expiresAt.slice(0, 10) : "",
+      maxUses: coupon.maxUses ?? "",
+      isActive: coupon.isActive ?? true,
+    });
+  };
+
+  const cancelCouponEdit = () => {
+    setEditingCouponId(null);
+    setCouponForm(emptyCouponForm);
+  };
+
+  const toggleCouponStatus = async (coupon) => {
+    try {
+      const res = await axios.put(
+        `${API_URL}/coupons/${coupon._id}`,
+        { isActive: !coupon.isActive },
         { withCredentials: true }
       );
 
-      setCoupons((prev) => [res.data, ...prev]);
-      setCouponForm({ code: "", discountType: "fixed", value: "" });
+      setCoupons((prev) =>
+        prev.map((item) => (item._id === coupon._id ? res.data : item))
+      );
     } catch (err) {
-      console.error("Failed to create coupon", err);
-      alert(err.response?.data?.message || "Coupon creation failed");
+      console.error("Failed to update coupon status", err);
+      alert(err.response?.data?.message || "Coupon status update failed");
     }
   };
 
@@ -247,45 +318,86 @@ const AdminDashboardPage = () => {
 
       <div className={styles.section}>
         <h3>Coupons</h3>
-        <form onSubmit={createCoupon} className={styles.orderItem}>
+        <form onSubmit={saveCoupon} className={styles.productForm}>
           <input
             type="text"
+            name="code"
             value={couponForm.code}
-            onChange={(event) =>
-              setCouponForm((prev) => ({ ...prev, code: event.target.value }))
-            }
+            onChange={handleCouponChange}
             placeholder="Code"
             required
           />
           <select
+            name="discountType"
             value={couponForm.discountType}
-            onChange={(event) =>
-              setCouponForm((prev) => ({
-                ...prev,
-                discountType: event.target.value,
-              }))
-            }
+            onChange={handleCouponChange}
           >
             <option value="fixed">fixed</option>
             <option value="percentage">percentage</option>
           </select>
           <input
             type="number"
+            name="value"
             min="0"
             value={couponForm.value}
-            onChange={(event) =>
-              setCouponForm((prev) => ({ ...prev, value: event.target.value }))
-            }
+            onChange={handleCouponChange}
             placeholder="Value"
             required
           />
-          <button type="submit">Add Coupon</button>
+          <input
+            type="date"
+            name="expiresAt"
+            value={couponForm.expiresAt}
+            onChange={handleCouponChange}
+          />
+          <input
+            type="number"
+            name="maxUses"
+            min="1"
+            value={couponForm.maxUses}
+            onChange={handleCouponChange}
+            placeholder="Max uses"
+          />
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              name="isActive"
+              checked={couponForm.isActive}
+              onChange={handleCouponChange}
+            />
+            Active
+          </label>
+          <div className={styles.formActions}>
+            <button type="submit">
+              {editingCouponId ? "Update Coupon" : "Add Coupon"}
+            </button>
+            {editingCouponId && (
+              <button type="button" onClick={cancelCouponEdit}>
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
         <ul className={styles.list}>
           {coupons.map((coupon) => (
             <li key={coupon._id}>
-              <strong>{coupon.code}</strong> - {coupon.discountType}{" "}
-              {coupon.value}
+              <div className={styles.productItem}>
+                <span>
+                  <strong>{coupon.code}</strong> - {coupon.discountType}{" "}
+                  {coupon.value} - {coupon.isActive ? "Active" : "Inactive"} -
+                  Uses: {coupon.usedCount ?? 0}
+                  {coupon.maxUses ? `/${coupon.maxUses}` : "/unlimited"}
+                  {coupon.expiresAt
+                    ? ` - Expires: ${coupon.expiresAt.slice(0, 10)}`
+                    : " - No expiry"}
+                </span>
+                <div className={styles.productActions}>
+                  <button onClick={() => editCoupon(coupon)}>Edit</button>
+                  <button onClick={() => toggleCouponStatus(coupon)}>
+                    {coupon.isActive ? "Deactivate" : "Activate"}
+                  </button>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

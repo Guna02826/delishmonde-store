@@ -39,6 +39,25 @@ const calculateSubtotal = async (items) => {
   return subtotal;
 };
 
+const buildCouponPayload = (body) => {
+  const payload = {};
+
+  if (body.code !== undefined) payload.code = body.code;
+  if (body.discountType !== undefined) payload.discountType = body.discountType;
+  if (body.value !== undefined) payload.value = Number(body.value);
+  if (body.isActive !== undefined) payload.isActive = Boolean(body.isActive);
+
+  if (body.expiresAt !== undefined) {
+    payload.expiresAt = body.expiresAt ? new Date(body.expiresAt) : undefined;
+  }
+
+  if (body.maxUses !== undefined) {
+    payload.maxUses = body.maxUses === "" ? undefined : Number(body.maxUses);
+  }
+
+  return payload;
+};
+
 router.post("/apply", verifyUser, async (req, res) => {
   try {
     const subtotal = await calculateSubtotal(req.body.items);
@@ -73,10 +92,45 @@ router.get("/", verifyAdmin, async (req, res) => {
 
 router.post("/", verifyAdmin, async (req, res) => {
   try {
-    const { code, discountType, value, isActive = true } = req.body;
-    const coupon = await Coupon.create({ code, discountType, value, isActive });
+    const coupon = await Coupon.create(buildCouponPayload(req.body));
 
     res.status(201).json(coupon);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/:id", verifyAdmin, async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndUpdate(
+      req.params.id,
+      buildCouponPayload(req.body),
+      { new: true, runValidators: true }
+    );
+
+    if (!coupon) {
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+
+    res.json(coupon);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.delete("/:id", verifyAdmin, async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndUpdate(
+      req.params.id,
+      { isActive: false },
+      { new: true, runValidators: true }
+    );
+
+    if (!coupon) {
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+
+    res.json(coupon);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

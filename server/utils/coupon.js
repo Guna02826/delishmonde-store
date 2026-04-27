@@ -16,6 +16,18 @@ export const calculateCouponDiscount = async (couponCode, subtotal) => {
     throw error;
   }
 
+  if (coupon.expiresAt && coupon.expiresAt < new Date()) {
+    const error = new Error("Coupon code has expired");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+    const error = new Error("Coupon usage limit has been reached");
+    error.statusCode = 400;
+    throw error;
+  }
+
   const discount =
     coupon.discountType === "percentage"
       ? (subtotal * coupon.value) / 100

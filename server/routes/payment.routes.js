@@ -7,6 +7,7 @@ import Order from "../models/order.model.js";
 import Payment from "../models/payment.model.js";
 import Product from "../models/product.model.js";
 import Cart from "../models/cart.model.js";
+import Coupon from "../models/coupon.model.js";
 import { verifyUser } from "../middleware/auth.middleware.js";
 import { calculateCouponDiscount } from "../utils/coupon.js";
 import { sendInvoiceEmail } from "../utils/invoice.js";
@@ -84,6 +85,43 @@ const decrementOrderStock = async (products, session) => {
       error.statusCode = 409;
       throw error;
     }
+  }
+};
+
+const incrementCouponUsage = async (couponCode, session) => {
+  if (!couponCode) return;
+
+  const now = new Date();
+  const result = await Coupon.updateOne(
+    {
+      code: couponCode,
+      isActive: true,
+      $and: [
+        {
+          $or: [
+            { expiresAt: { $exists: false } },
+            { expiresAt: null },
+            { expiresAt: { $gt: now } },
+          ],
+        },
+        {
+          $or: [
+            { maxUses: { $exists: false } },
+            { maxUses: null },
+            { usedCount: { $exists: false } },
+            { $expr: { $lt: ["$usedCount", "$maxUses"] } },
+          ],
+        },
+      ],
+    },
+    { $inc: { usedCount: 1 } },
+    { session }
+  );
+
+  if (result.matchedCount !== 1) {
+    const error = new Error("Coupon is no longer available");
+    error.statusCode = 409;
+    throw error;
   }
 };
 
@@ -235,6 +273,8 @@ router.post("/verify", async (req, res) => {
         { items: [] },
         { session }
       );
+
+      await incrementCouponUsage(order.couponCode, session);
 
       shouldSendInvoice = true;
     });

@@ -136,6 +136,22 @@
   grid-column: 1 / -1;
 }
 
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: var(--touch-min);
+  color: var(--color-text-primary);
+  font-size: var(--fs-small);
+}
+
+.checkboxLabel input {
+  width: 18px;
+  height: 18px;
+  min-height: auto;
+  padding: 0;
+}
+
 /* ── Form Actions ── */
 .formActions {
   display: flex;
