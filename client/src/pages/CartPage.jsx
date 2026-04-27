@@ -158,7 +158,9 @@ function CartPage() {
             );
 
             alert("Payment successful! Order placed.");
-            await clearCart();
+            setCartItems([]);
+            setAppliedCoupon(null);
+            setCouponCode("");
             navigate("/order-success");
           } catch (error) {
             console.error("Payment verification error", error);

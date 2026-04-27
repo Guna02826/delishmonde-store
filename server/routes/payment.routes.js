@@ -5,6 +5,7 @@ import Razorpay from "razorpay";
 import Order from "../models/order.model.js";
 import Payment from "../models/payment.model.js";
 import Product from "../models/product.model.js";
+import Cart from "../models/cart.model.js";
 import { verifyUser } from "../middleware/auth.middleware.js";
 import { calculateCouponDiscount } from "../utils/coupon.js";
 import { sendInvoiceEmail } from "../utils/invoice.js";
@@ -100,6 +101,9 @@ router.post("/create-order", async (req, res) => {
       user: req.user.id,
       amount: totalAmount,
       razorpayOrderId: razorpayOrder.id,
+      // Avoid duplicate-key failures on legacy unique transactionId indexes.
+      // We replace this with razorpay_payment_id after verification.
+      transactionId: razorpayOrder.id,
     });
 
     res.status(201).json({
@@ -171,6 +175,9 @@ router.post("/verify", async (req, res) => {
       { status: "processing" },
       { new: true }
     ).populate("products.productId", "name price");
+
+    // Clear purchased items from the user's cart after successful payment.
+    await Cart.findOneAndUpdate({ userId: req.user.id }, { items: [] });
 
     try {
       await sendInvoiceEmail({ to: req.user.email, order });
