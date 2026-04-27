@@ -1,4 +1,3 @@
-/* ── Hero Section ── */
 .hero {
   text-align: center;
   padding: var(--space-2xl) var(--space-md);
@@ -31,9 +30,7 @@
   line-height: 1.7;
 }
 
-/* ── CTA Buttons ── */
-.heroButton,
-.addToCart {
+.heroButton {
   margin-top: var(--space-lg);
   padding: var(--space-sm) var(--space-lg);
   min-height: var(--touch-min);
@@ -47,18 +44,15 @@
   transition: background var(--transition-normal), transform var(--transition-fast);
 }
 
-.heroButton:hover,
-.addToCart:hover {
+.heroButton:hover {
   background: var(--color-cta-hover);
   transform: translateY(-2px);
 }
 
-.heroButton:active,
-.addToCart:active {
+.heroButton:active {
   transform: translateY(0);
 }
 
-/* ── Best Sellers ── */
 .bestSellerTitle {
   font-size: var(--fs-h2);
   color: var(--color-primary);
@@ -73,102 +67,6 @@
   padding: var(--space-md) 0;
 }
 
-/* ── Food Card ── */
-.food {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  text-align: center;
-  box-shadow: var(--shadow-card);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-}
-
-.food:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-elevated);
-}
-
-.food img {
-  width: 100%;
-  max-width: 200px;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-md);
-}
-
-.food h3 {
-  font-size: var(--fs-h3);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-sm);
-  line-height: 1.4;
-  height: 2.8em; /* Exactly 2 lines */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-
-.food p {
-  font-size: var(--fs-small);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-sm);
-  line-height: 1.5;
-  height: 3em; /* Exactly 2 lines */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-
-/* ── Quantity Selector ── */
-.quantityContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-}
-
-.quantityButton {
-  background: var(--color-cta);
-  color: var(--color-text-on-dark);
-  border: none;
-  width: 36px;
-  height: 36px;
-  font-size: var(--fs-body);
-  font-weight: 700;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  padding: 0;
-  transition: background var(--transition-normal);
-}
-
-.quantityButton:hover {
-  background: var(--color-cta-hover);
-}
-
-.quantity {
-  font-size: var(--fs-h3);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  min-width: 32px;
-  text-align: center;
-}
-
-/* ── Tablet ── */
 @media (max-width: 768px) {
   .hero {
     padding: var(--space-lg) var(--space-md);
@@ -184,7 +82,6 @@
   }
 }
 
-/* ── Mobile ── */
 @media (max-width: 480px) {
   .hero {
     padding: var(--space-md) var(--space-sm);
@@ -200,12 +97,7 @@
     gap: var(--space-md);
   }
 
-  .food {
-    padding: var(--space-md);
-  }
-
-  .heroButton,
-  .addToCart {
+  .heroButton {
     width: 100%;
     padding: var(--space-md);
   }

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import image from "../assets/images/Bakery-background.jpg";
-import { addCartItem } from "../api/cartApi";
+import FoodItem from "../components/FoodItem";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -47,63 +47,14 @@ function Homepage() {
       <h2 className={styles.bestSellerTitle}>Best Sellers</h2>
       <div className={styles.bestSellerGrid}>
         {bestSellers.map((food) => (
-          <FoodItem key={food._id} food={food} />
+          <FoodItem
+            key={food._id}
+            food={food}
+            variant="home"
+            successMode="alert"
+          />
         ))}
       </div>
-    </div>
-  );
-}
-
-function FoodItem({ food }) {
-  const [quantity, setQuantity] = useState(1);
-  const navigate = useNavigate();
-  const productImage = food.images?.[0] || food.image || "https://placehold.co/150";
-
-  const addToCart = async () => {
-    try {
-      await addCartItem(food._id, quantity);
-      alert(`${quantity} x ${food.name} added to cart!`);
-    } catch (error) {
-      if (error.response?.status === 401) {
-        alert("Please log in to add items to your cart.");
-        navigate("/login");
-        return;
-      }
-
-      alert(error.response?.data?.message || "Failed to add item to cart.");
-    }
-  };
-
-  return (
-    <div className={styles.food}>
-      <img
-        src={productImage}
-        alt={food.name}
-        loading="lazy"
-      />
-      <h3>{food.name}</h3>
-      <p className={styles.desc}>{food.description}</p>
-      <b>₹{food.price}</b>
-
-      <div className={styles.quantityContainer}>
-        <button
-          className={styles.quantityButton}
-          onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-        >
-          -
-        </button>
-        <span className={styles.quantity}>{quantity}</span>
-        <button
-          className={styles.quantityButton}
-          onClick={() => setQuantity((prev) => prev + 1)}
-        >
-          +
-        </button>
-      </div>
-      <br />
-      <button className={styles.addToCart} onClick={addToCart}>
-        Add to Cart
-      </button>
     </div>
   );
 }

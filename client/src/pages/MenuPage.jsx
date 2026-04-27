@@ -1,8 +1,7 @@
 import styles from "../styles/MenuPage.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { addCartItem } from "../api/cartApi";
+import FoodItem from "../components/FoodItem";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,13 +19,12 @@ function MenuPage() {
   const [error, setError] = useState(null);
   const [headerHeight, setHeaderHeight] = useState(64);
 
-  // Dynamically track header height so sticky filters never overlap on mobile/tablet
   useEffect(() => {
-    const headerEl = document.querySelector('header');
+    const headerEl = document.querySelector("header");
     if (!headerEl) return;
 
     const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         setHeaderHeight(entry.target.offsetHeight);
       }
     });
@@ -92,10 +90,7 @@ function MenuPage() {
 
   return (
     <div className={styles.menuContainer}>
-      <div 
-        className={styles.filters} 
-        style={{ top: `${headerHeight}px` }}
-      >
+      <div className={styles.filters} style={{ top: `${headerHeight}px` }}>
         <input
           type="text"
           name="search"
@@ -152,7 +147,6 @@ function MenuPage() {
   );
 }
 
-// moved outside useEffect for better scope
 const categorizeFoods = (foods) => {
   const categories = {};
   foods.forEach((food) => {
@@ -185,59 +179,5 @@ const getCategories = (foods) => {
 
   return Array.from(categories).sort();
 };
-
-function FoodItem({ food }) {
-  const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
-  const navigate = useNavigate();
-  const productImage = food.images?.[0] || food.image || "https://placehold.co/150";
-
-  const addToCart = async () => {
-    try {
-      await addCartItem(food._id, quantity);
-      setAdded(true);
-      setTimeout(() => setAdded(false), 1500);
-    } catch (error) {
-      if (error.response?.status === 401) {
-        alert("Please log in to add items to your cart.");
-        navigate("/login");
-        return;
-      }
-
-      alert(error.response?.data?.message || "Failed to add item to cart.");
-    }
-  };
-
-  return (
-    <div className={styles.food}>
-      <img
-        src={productImage}
-        alt={food.name || "Food item"}
-        loading="lazy"
-      />
-      <h3>{food.name}</h3>
-      <p className={styles.desc}>{food.description}</p>
-      <b>₹{food.price}</b>
-      <div className={styles.quantityContainer}>
-        <button
-          className={styles.quantityButton}
-          onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-        >
-          −
-        </button>
-        <span className={styles.quantity}>{quantity}</span>
-        <button
-          className={styles.quantityButton}
-          onClick={() => setQuantity((prev) => prev + 1)}
-        >
-          +
-        </button>
-      </div>
-      <button className={styles.addToCart} onClick={addToCart}>
-        {added ? "Added ✅" : "Add to Cart"}
-      </button>
-    </div>
-  );
-}
 
 export default MenuPage;

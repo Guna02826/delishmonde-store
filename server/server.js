@@ -18,8 +18,6 @@ import healthRoutes from "./routes/health.routes.js";
 const app = express();
 
 // Middleware
-console.log("Allowed CORS Origin:", process.env.CLIENT_URL);
-
 app.use("/api/health", healthRoutes);
 
 app.use(json());
