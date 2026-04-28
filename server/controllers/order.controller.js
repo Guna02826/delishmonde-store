@@ -1,75 +1,14 @@
 import Order from "../models/order.model.js";
-import Product from "../models/product.model.js";
-import { sendInvoiceEmail } from "../utils/invoice.js";
 
-//1.User Operations
-// Place New Order
-export const newOrder = async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: "Login to place an order!" });
-    }
-
-    const { items } = req.body;
-    if (!items || !items.length) {
-      return res.status(400).json({ message: "No items provided in order." });
-    }
-
-    let totalAmount = 0;
-    const products = [];
-
-    for (const item of items) {
-      const product = await Product.findById(item.productId);
-      if (!product) {
-        return res
-          .status(404)
-          .json({ message: `Product not found: ${item.productId}` });
-      }
-
-      products.push({
-        productId: product._id,
-        quantity: item.quantity,
-        priceAtPurchase: product.price,
-      });
-
-      totalAmount += product.price * item.quantity;
-    }
-
-    const order = new Order({
-      userId: req.user.id,
-      products,
-      subtotal: totalAmount,
-      discountAmount: 0,
-      totalPrice: totalAmount,
-    });
-
-    await order.save();
-    await order.populate("products.productId", "name price");
-
-    try {
-      await sendInvoiceEmail({ to: req.user.email, order });
-    } catch (emailError) {
-      console.error("Invoice email failed:", emailError.message);
-    }
-
-    res.status(201).json({
-      message: "Order placed successfully!",
-      order,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error placing order",
-      error: error.message,
-    });
-  }
-};
+// Normal history views intentionally exclude legacy pending orders.
+const NORMAL_HISTORY_FILTER = { status: { $ne: "pending" } };
 
 // Get Orders for Logged-in User
 export const getOrders = async (req, res) => {
   try {
     const orders = await Order.find({
       userId: req.user.id,
-      status: { $ne: "pending" },
+      ...NORMAL_HISTORY_FILTER,
     })
       .populate("products.productId", "name price")
       .sort({ createdAt: -1 });

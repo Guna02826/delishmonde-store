@@ -16,7 +16,7 @@ const OrderHistoryPage = () => {
         const response = await axios.get(`${API_URL}/orders/me`, {
           withCredentials: true,
         });
-        setOrders(response.data.filter((order) => order.status !== "pending"));
+        setOrders(response.data);
       } catch (error) {
         setError(error.response?.data?.message || "Failed to load orders");
       } finally {

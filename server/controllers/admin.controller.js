@@ -2,6 +2,9 @@ import User from "../models/user.model.js";
 import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 
+// Normal history views intentionally exclude legacy pending orders.
+const NORMAL_HISTORY_FILTER = { status: { $ne: "pending" } };
+
 // Get all users
 export const getAllUsers = async (req, res) => {
   try {
@@ -19,7 +22,7 @@ export const getUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({
       userId: req.params.id,
-      status: { $ne: "pending" },
+      ...NORMAL_HISTORY_FILTER,
     })
       .populate("products.productId", "name price")
       .sort({ createdAt: -1 });
