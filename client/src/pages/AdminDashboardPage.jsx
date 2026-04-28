@@ -289,9 +289,9 @@ const AdminDashboardPage = () => {
       {/* Summary Cards */}
       <div className={styles.summary}>
         {[
-          { label: "Users", value: summary.totalUsers },
-          { label: "Orders", value: summary.totalOrders },
-          { label: "Revenue", value: `₹${summary.totalRevenue}` },
+          { label: "Total Orders", value: summary.totalOrders ?? 0 },
+          { label: "Low Stock (<5)", value: summary.lowStockCount ?? 0 },
+          { label: "Monthly Revenue", value: `Rs. ${summary.monthlyRevenue ?? 0}` },
         ].map((item) => (
           <div className={styles.card} key={item.label}>
             <h3>{item.label}</h3>
