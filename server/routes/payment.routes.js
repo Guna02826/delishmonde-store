@@ -307,9 +307,7 @@ const verifyRazorpayPayment = async (req, res) => {
   }
 };
 
-router.post("/create-order", createRazorpayOrder);
 router.post("/create-razorpay-order", createRazorpayOrder);
-router.post("/verify", verifyRazorpayPayment);
 router.post("/verify-payment", verifyRazorpayPayment);
 
 export default router;
