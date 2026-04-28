@@ -139,16 +139,6 @@ const createRazorpayOrder = async (req, res) => {
     const totalAmount = subtotal - discountAmount;
     const razorpay = getRazorpay();
 
-    const order = await Order.create({
-      userId: req.user.id,
-      products,
-      subtotal,
-      discountAmount,
-      couponCode: coupon?.code,
-      totalPrice: totalAmount,
-      status: "pending",
-    });
-
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(totalAmount * 100),
       currency: "INR",
@@ -214,7 +204,7 @@ const verifyRazorpayPayment = async (req, res) => {
 
     if (expectedSignature !== razorpay_signature) {
       await Payment.findOneAndUpdate(
-        { order: orderId, razorpayOrderId: razorpay_order_id, user: req.user.id },
+        { _id: orderId, razorpayOrderId: razorpay_order_id, user: req.user.id },
         { status: "failed" }
       );
 
@@ -227,7 +217,7 @@ const verifyRazorpayPayment = async (req, res) => {
 
     await session.withTransaction(async () => {
       payment = await Payment.findOne({
-        order: orderId,
+        _id: orderId,
         razorpayOrderId: razorpay_order_id,
         user: req.user.id,
       }).session(session);
@@ -239,36 +229,40 @@ const verifyRazorpayPayment = async (req, res) => {
       }
 
       if (payment.status === "completed") {
-        order = await Order.findOne({
-          _id: orderId,
-          userId: req.user.id,
-        }).session(session);
+        order = await Order.findById(payment.order).session(session);
         return;
       }
 
-      order = await Order.findOne({
-        _id: orderId,
-        userId: req.user.id,
-        status: "pending",
-      }).session(session);
-
-      if (!order) {
-        const error = new Error("Order not found or already processed");
-        error.statusCode = 404;
+      if (!Array.isArray(payment.checkoutItems) || payment.checkoutItems.length === 0) {
+        const error = new Error("Checkout items missing for payment");
+        error.statusCode = 400;
         throw error;
       }
 
-      await decrementOrderStock(order.products, session);
+      await decrementOrderStock(payment.checkoutItems, session);
+
+      order = await Order.create(
+        [
+          {
+            userId: req.user.id,
+            products: payment.checkoutItems,
+            subtotal: payment.subtotal ?? payment.amount,
+            discountAmount: payment.discountAmount ?? 0,
+            couponCode: payment.couponCode,
+            totalPrice: payment.amount,
+            status: "processing",
+          },
+        ],
+        { session }
+      ).then((docs) => docs[0]);
 
       payment.status = "completed";
+      payment.order = order._id;
       payment.razorpayPaymentId = razorpay_payment_id;
       payment.razorpaySignature = razorpay_signature;
       payment.transactionId = razorpay_payment_id;
       payment.paidAt = new Date();
       await payment.save({ session });
-
-      order.status = "processing";
-      await order.save({ session });
 
       await Cart.findOneAndUpdate(
         { userId: req.user.id },
@@ -276,13 +270,13 @@ const verifyRazorpayPayment = async (req, res) => {
         { session }
       );
 
-      await incrementCouponUsage(order.couponCode, session);
+      await incrementCouponUsage(payment.couponCode, session);
 
       shouldSendInvoice = true;
     });
 
     order = await Order.findOne({
-      _id: orderId,
+      _id: order?._id || payment.order,
       userId: req.user.id,
     }).populate("products.productId", "name price");
 
@@ -296,7 +290,7 @@ const verifyRazorpayPayment = async (req, res) => {
 
     res.json({
       message: "Payment verified successfully",
-      orderId,
+      orderId: order?._id,
       paymentId: payment._id,
     });
   } catch (error) {
