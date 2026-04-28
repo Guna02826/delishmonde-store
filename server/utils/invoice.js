@@ -6,13 +6,14 @@ const buildInvoiceHtml = (order) => {
   const rows = order.products
     .map((item) => {
       const product = item.productId;
-      const itemTotal = product.price * item.quantity;
+      const unitPrice = item.priceAtPurchase ?? product.price ?? 0;
+      const itemTotal = unitPrice * item.quantity;
 
       return `
         <tr>
           <td style="padding: 10px; border-bottom: 1px solid #eee;">${product.name}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${formatMoney(product.price)}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${formatMoney(unitPrice)}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${formatMoney(itemTotal)}</td>
         </tr>
       `;

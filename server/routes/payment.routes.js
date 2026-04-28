@@ -88,6 +88,28 @@ const decrementOrderStock = async (products, session) => {
   }
 };
 
+const withPriceSnapshot = async (items, session) => {
+  const orderProducts = [];
+
+  for (const item of items) {
+    const product = await Product.findById(item.productId).session(session);
+
+    if (!product) {
+      const error = new Error(`Product not found: ${item.productId}`);
+      error.statusCode = 404;
+      throw error;
+    }
+
+    orderProducts.push({
+      productId: product._id,
+      quantity: item.quantity,
+      priceAtPurchase: product.price,
+    });
+  }
+
+  return orderProducts;
+};
+
 const incrementCouponUsage = async (couponCode, session) => {
   if (!couponCode) return;
 
@@ -239,13 +261,15 @@ const verifyRazorpayPayment = async (req, res) => {
         throw error;
       }
 
+      const orderProducts = await withPriceSnapshot(payment.checkoutItems, session);
+
       await decrementOrderStock(payment.checkoutItems, session);
 
       order = await Order.create(
         [
           {
             userId: req.user.id,
-            products: payment.checkoutItems,
+            products: orderProducts,
             subtotal: payment.subtotal ?? payment.amount,
             discountAmount: payment.discountAmount ?? 0,
             couponCode: payment.couponCode,

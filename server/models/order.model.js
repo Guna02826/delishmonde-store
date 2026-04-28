@@ -14,6 +14,7 @@ const OrderSchema = new Schema({
         required: true,
       },
       quantity: { type: Number, required: true, min: 1 },
+      priceAtPurchase: { type: Number, required: true, min: 0 },
     },
   ],
   subtotal: { type: Number, required: true, min: 0 },

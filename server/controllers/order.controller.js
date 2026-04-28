@@ -29,6 +29,7 @@ export const newOrder = async (req, res) => {
       products.push({
         productId: product._id,
         quantity: item.quantity,
+        priceAtPurchase: product.price,
       });
 
       totalAmount += product.price * item.quantity;
