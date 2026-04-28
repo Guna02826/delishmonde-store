@@ -127,7 +127,7 @@ const incrementCouponUsage = async (couponCode, session) => {
 
 router.use(verifyUser);
 
-router.post("/create-order", async (req, res) => {
+const createRazorpayOrder = async (req, res) => {
   try {
     const { products, totalAmount: subtotal } = await buildOrderProducts(
       req.body.items
@@ -181,9 +181,9 @@ router.post("/create-order", async (req, res) => {
       message: error.message || "Failed to create Razorpay order",
     });
   }
-});
+};
 
-router.post("/verify", async (req, res) => {
+const verifyRazorpayPayment = async (req, res) => {
   const session = await mongoose.startSession();
 
   try {
@@ -305,6 +305,11 @@ router.post("/verify", async (req, res) => {
   } finally {
     await session.endSession();
   }
-});
+};
+
+router.post("/create-order", createRazorpayOrder);
+router.post("/create-razorpay-order", createRazorpayOrder);
+router.post("/verify", verifyRazorpayPayment);
+router.post("/verify-payment", verifyRazorpayPayment);
 
 export default router;

@@ -138,7 +138,7 @@ function CartPage() {
 
     try {
       const { data } = await axios.post(
-        `${API_URL}/payments/create-order`,
+        `${API_URL}/orders/create-razorpay-order`,
         {
           items: checkoutItems,
           couponCode: appliedCoupon?.code,
@@ -160,7 +160,7 @@ function CartPage() {
         handler: async (response) => {
           try {
             await axios.post(
-              `${API_URL}/payments/verify`,
+              `${API_URL}/orders/verify-payment`,
               {
                 orderId: data.orderId,
                 razorpay_order_id: response.razorpay_order_id,
