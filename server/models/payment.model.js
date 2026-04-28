@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 const PaymentSchema = new Schema({
-  order: { type: Schema.Types.ObjectId, ref: "Order", required: true },
+  order: { type: Schema.Types.ObjectId, ref: "Order" },
   user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   amount: { type: Number, required: true, min: 0 },
   method: {
@@ -15,6 +15,19 @@ const PaymentSchema = new Schema({
     default: "pending",
   },
   razorpayOrderId: { type: String, required: true },
+  checkoutItems: [
+    {
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      quantity: { type: Number, required: true, min: 1 },
+    },
+  ],
+  subtotal: { type: Number, min: 0 },
+  discountAmount: { type: Number, min: 0, default: 0 },
+  couponCode: { type: String },
   razorpayPaymentId: { type: String },
   razorpaySignature: { type: String },
   transactionId: { type: String },

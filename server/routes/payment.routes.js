@@ -152,18 +152,20 @@ const createRazorpayOrder = async (req, res) => {
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(totalAmount * 100),
       currency: "INR",
-      receipt: order._id.toString(),
+      receipt: `checkout_${Date.now()}`,
       notes: {
-        orderId: order._id.toString(),
         userId: req.user.id.toString(),
       },
     });
 
-    await Payment.create({
-      order: order._id,
+    const payment = await Payment.create({
       user: req.user.id,
       amount: totalAmount,
       razorpayOrderId: razorpayOrder.id,
+      checkoutItems: products,
+      subtotal,
+      discountAmount,
+      couponCode: coupon?.code,
       // Avoid duplicate-key failures on legacy unique transactionId indexes.
       // We replace this with razorpay_payment_id after verification.
       transactionId: razorpayOrder.id,
@@ -171,7 +173,7 @@ const createRazorpayOrder = async (req, res) => {
 
     res.status(201).json({
       keyId: process.env.RAZORPAY_KEY_ID,
-      orderId: order._id,
+      orderId: payment._id,
       razorpayOrderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
