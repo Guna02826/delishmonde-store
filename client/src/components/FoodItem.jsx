@@ -3,11 +3,13 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { addCartItem } from "../api/cartApi";
 import styles from "../styles/FoodItem.module.css";
+import { useCart } from "../context/CartContext";
 
 function FoodItem({ food, variant = "menu", successMode = "inline" }) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const navigate = useNavigate();
+  const { refreshCartCount } = useCart();
   const productImage = food.images?.[0] || food.image || "https://placehold.co/150";
   const hasStockLimit = Number.isInteger(food.stock);
 
@@ -15,10 +17,8 @@ function FoodItem({ food, variant = "menu", successMode = "inline" }) {
     try {
       await addCartItem(food._id, quantity);
 
-      if (successMode === "alert") {
-        toast.success(`${quantity} x ${food.name} added to cart!`);
-        return;
-      }
+      toast.success(`${quantity} x ${food.name} added to cart!`);
+      refreshCartCount();
 
       setAdded(true);
       setTimeout(() => setAdded(false), 1500);

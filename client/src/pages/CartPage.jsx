@@ -12,6 +12,7 @@ import {
   updateCartItem,
 } from "../api/cartApi";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -40,6 +41,7 @@ const formatCartItems = (cart) =>
 function CartPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { refreshCartCount } = useCart();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState("");
@@ -82,6 +84,8 @@ function CartPage() {
       const cart = await removeCartItem(productId);
       setCartItems(formatCartItems(cart));
       setAppliedCoupon(null);
+      refreshCartCount();
+
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to remove item.");
 
@@ -95,6 +99,8 @@ function CartPage() {
       const cart = await updateCartItem(item._id, quantity);
       setCartItems(formatCartItems(cart));
       setAppliedCoupon(null);
+      refreshCartCount();
+
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update quantity.");
 
@@ -106,6 +112,8 @@ function CartPage() {
       await clearCartApi();
       setCartItems([]);
       setAppliedCoupon(null);
+      refreshCartCount();
+
       setCouponCode("");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to clear cart.");
@@ -183,6 +191,8 @@ function CartPage() {
             setCartItems([]);
             setAppliedCoupon(null);
             setCouponCode("");
+            refreshCartCount();
+
             navigate("/order-success");
           } catch (error) {
             console.error("Payment verification error", error);

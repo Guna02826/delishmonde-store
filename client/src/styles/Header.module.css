@@ -170,6 +170,38 @@
   flex-shrink: 0;
 }
 
+.cartIconWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--color-error);
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes pop {
+  0% { transform: scale(0.5); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
 @media screen and (max-width: 768px) {
   .header {
     grid-template-columns: auto minmax(0, 1fr) max-content;

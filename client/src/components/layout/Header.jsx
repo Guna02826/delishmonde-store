@@ -14,11 +14,13 @@ import {
 import styles from "../../styles/Header.module.css";
 import delishMondeLogo from "../../assets/images/Delish Monde - Logo.png";
 import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { cartCount } = useCart();
 
   const handleLogout = async () => {
     await logout();
@@ -60,10 +62,17 @@ function Header() {
               <>
                 <li>
                   <NavLink to="/cart">
-                    <FontAwesomeIcon
-                      icon={faCartShopping}
-                      className={styles.iconSpacing}
-                    />
+                    <span className={styles.cartIconWrapper}>
+                      <FontAwesomeIcon
+                        icon={faCartShopping}
+                        className={styles.iconSpacing}
+                      />
+                      {cartCount > 0 && (
+                        <span className={styles.badge} key={cartCount}>
+                          {cartCount}
+                        </span>
+                      )}
+                    </span>
                     Cart
                   </NavLink>
                 </li>
