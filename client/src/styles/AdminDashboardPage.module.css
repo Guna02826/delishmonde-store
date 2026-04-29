@@ -2,259 +2,336 @@
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-xl) var(--space-md);
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Heading ── */
 .heading {
   text-align: center;
   font-size: var(--fs-h1);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-xl);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-cta));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-2xl);
+  font-weight: 800;
+  letter-spacing: -1px;
 }
 
-/* ── Summary Cards ── */
+/* ── Tab Navigation ── */
+.tabNav {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-xs);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 80px;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.tabNav::-webkit-scrollbar { display: none; }
+
+.tabButton {
+  padding: var(--space-sm) var(--space-xl);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  white-space: nowrap;
+}
+
+.tabButton:hover:not(.activeTab) {
+  background: rgba(43, 91, 132, 0.08);
+  color: var(--color-primary);
+}
+
+.activeTab {
+  background: var(--color-surface);
+  color: var(--color-primary) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: scale(1.05);
+}
+
+/* ── Summary Grid ── */
 .summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-md);
-  margin-bottom: var(--space-xl);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-xl);
+  margin-bottom: var(--space-3xl);
 }
 
 .card {
   background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
-  text-align: center;
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
   box-shadow: var(--shadow-card);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid var(--color-border-light);
+  position: relative;
+  overflow: hidden;
 }
 
-.card h3 {
-  font-size: var(--fs-small);
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle at top right, rgba(43, 91, 132, 0.05), transparent);
+  border-radius: 0 0 0 100%;
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-elevated);
+  border-color: var(--color-primary-light);
+}
+
+.cardIcon {
+  width: 64px;
+  height: 64px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .cardIcon {
+  transform: rotate(10deg);
+}
+
+.cardInfo h3 {
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: var(--space-sm);
+  letter-spacing: 2px;
+  margin-bottom: var(--space-xs);
+  font-weight: 700;
 }
 
-.card p {
-  font-size: var(--fs-h2);
-  font-weight: 700;
-  color: var(--color-primary);
+.cardInfo p {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1.2;
 }
 
 /* ── Sections ── */
 .section {
-  margin-bottom: var(--space-xl);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  box-shadow: var(--shadow-card);
+  margin-bottom: var(--space-2xl);
+  border: 1px solid var(--color-border-light);
+  animation: slideUp 0.5s ease-out;
 }
 
-.section h3 {
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 2px solid var(--color-primary-light);
+}
+
+.sectionHeader h3 {
   font-size: var(--fs-h3);
   color: var(--color-text-primary);
-  margin-bottom: var(--space-md);
-  padding-bottom: var(--space-sm);
-  border-bottom: 2px solid var(--color-primary);
-  display: inline-block;
-}
-
-/* ── Lists ── */
-.list {
-  list-style: none;
-  padding: 0;
-}
-
-.list li {
-  padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid var(--color-border-light);
-  cursor: pointer;
-  color: var(--color-text-primary);
-  font-size: var(--fs-small);
-  min-height: var(--touch-min);
+  font-weight: 800;
   display: flex;
   align-items: center;
-  transition: background var(--transition-fast);
-  border-radius: var(--radius-sm);
+  gap: var(--space-sm);
 }
 
-.list li:hover {
-  background: var(--color-primary-light);
-}
-
-.activeUser {
-  background-color: var(--color-primary-light);
-  font-weight: 700;
-}
-
-/* ── Order Item Row ── */
-.orderItem {
+/* ── Data Grid & Rows ── */
+.dataGrid {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-md);
-  flex-wrap: wrap;
 }
 
-/* ── Product Form ── */
-.productForm {
+.dataRow {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-md);
-  margin-bottom: var(--space-lg);
-  background: var(--color-surface);
+  grid-template-columns: 1fr auto;
+  align-items: center;
   padding: var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
 }
 
-.productForm input,
-.productForm textarea,
-.productForm select,
-.orderItem input,
-.orderItem select {
-  padding: var(--space-sm) var(--space-md);
-  min-height: var(--touch-min);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--fs-small);
-  color: var(--color-text-primary);
-  transition: border-color var(--transition-fast);
-}
-
-.productForm input:focus,
-.productForm textarea:focus,
-.productForm select:focus,
-.orderItem input:focus,
-.orderItem select:focus {
-  outline: none;
+.dataRow:hover {
+  background: var(--color-bg);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  transform: translateX(5px);
 }
 
-.productForm textarea {
-  min-height: 100px;
-  resize: vertical;
-  grid-column: 1 / -1;
-}
-
-.checkboxLabel {
+.rowMain {
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  min-height: var(--touch-min);
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rowTitle {
+  font-weight: 800;
   color: var(--color-text-primary);
-  font-size: var(--fs-small);
+  font-size: 1.1rem;
 }
 
-.checkboxLabel input {
-  width: 18px;
-  height: 18px;
-  min-height: auto;
-  padding: 0;
-}
-
-/* ── Form Actions ── */
-.formActions {
-  display: flex;
-  gap: var(--space-sm);
-  grid-column: 1 / -1;
-}
-
-.formActions button,
-.productActions button,
-.orderItem button {
-  padding: var(--space-sm) var(--space-md);
-  min-height: var(--touch-min);
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-cta);
-  color: var(--color-text-on-dark);
-  font-size: var(--fs-small);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background var(--transition-normal), transform var(--transition-fast);
-}
-
-.formActions button:hover,
-.productActions button:hover,
-.orderItem button:hover {
-  background: var(--color-cta-hover);
-  transform: translateY(-1px);
-}
-
-/* ── Product Item Row ── */
-.productItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-md);
-  width: 100%;
-}
-
-.productActions {
-  display: flex;
-  gap: var(--space-sm);
-  flex-shrink: 0;
-}
-
-/* ── Sub List (nested orders) ── */
-.subList {
-  list-style: none;
-  padding-left: var(--space-lg);
-  margin-top: var(--space-sm);
-}
-
-.subList li {
+.rowSubtitle {
   font-size: var(--fs-small);
   color: var(--color-text-secondary);
-  padding: var(--space-xs) 0;
-  border-bottom: none;
-  min-height: auto;
-  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
-.subList li:hover {
-  background: transparent;
+.rowActions {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
 }
 
-/* ── Tablet ── */
-@media (max-width: 768px) {
-  .summary {
-    grid-template-columns: 1fr 1fr;
-  }
+/* ── Forms ── */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
 
-  .productForm {
-    grid-template-columns: 1fr;
-  }
+.formControl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.formControl label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.formGrid input,
+.formGrid select,
+.formGrid textarea {
+  padding: var(--space-md);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  transition: all 0.3s ease;
+}
+
+.formGrid input:focus,
+.formGrid select:focus,
+.formGrid textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 4px var(--color-primary-light);
+}
+
+/* ── Buttons ── */
+.btn {
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, var(--color-primary), #3d7fb8);
+  color: white;
+  box-shadow: 0 4px 15px rgba(43, 91, 132, 0.3);
+}
+
+.btnPrimary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(43, 91, 132, 0.4);
+}
+
+.btnCTA {
+  background: linear-gradient(135deg, var(--color-cta), #ff8c61);
+  color: white;
+  box-shadow: 0 4px 15px rgba(242, 100, 48, 0.3);
+}
+
+.btnCTA:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(242, 100, 48, 0.4);
+}
+
+.btnDanger {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--color-error);
+}
+
+.btnDanger:hover {
+  background: var(--color-error);
+  color: white;
+}
+
+/* ── Loading States ── */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes loading {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
 
 /* ── Mobile ── */
-@media (max-width: 480px) {
-  .container {
-    padding: var(--space-md) var(--space-sm);
-  }
-
-  .summary {
-    grid-template-columns: 1fr;
-  }
-
-  .orderItem,
-  .productItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-sm);
-  }
-
-  .productActions {
-    width: 100%;
-  }
-
-  .productActions button {
-    flex: 1;
-  }
-
-  .list li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-xs);
-  }
+@media (max-width: 768px) {
+  .formGrid { grid-template-columns: 1fr; }
+  .tabNav { top: 70px; }
+  .summary { grid-template-columns: 1fr; }
+  .dataRow { grid-template-columns: 1fr; gap: var(--space-md); }
+  .rowActions { justify-content: flex-end; width: 100%; }
 }

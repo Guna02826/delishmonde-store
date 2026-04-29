@@ -1,6 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faGauge,
+  faShoppingBag,
+  faUtensils,
+  faUsers,
+  faTicket,
+  faMagnifyingGlass,
+  faPlus,
+  faPen,
+  faTrash,
+  faCheck,
+  faXmark,
+  faHistory,
+  faChartLine,
+  faTriangleExclamation,
+  faIndianRupeeSign,
+  faCalendarDay,
+  faBoxOpen,
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import styles from "../styles/AdminDashboardPage.module.css";
 
@@ -25,19 +44,27 @@ const emptyCouponForm = {
 };
 
 const AdminDashboardPage = () => {
+  const [activeTab, setActiveTab] = useState("overview");
   const [summary, setSummary] = useState({});
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  const [coupons, setCoupons] = useState([]);
+  
   const [productForm, setProductForm] = useState(emptyProductForm);
   const [editingProductId, setEditingProductId] = useState(null);
-  const [coupons, setCoupons] = useState([]);
+  
   const [couponForm, setCouponForm] = useState(emptyCouponForm);
   const [editingCouponId, setEditingCouponId] = useState(null);
+  
   const [selectedUserOrders, setSelectedUserOrders] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  
   const [loading, setLoading] = useState(true);
   const [loadingUserOrders, setLoadingUserOrders] = useState(false);
+  
+  const [productSearch, setProductSearch] = useState("");
+  const [userSearch, setUserSearch] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,9 +88,8 @@ const AdminDashboardPage = () => {
       } catch (err) {
         console.error("Admin data load failed", err);
         toast.error("You are not authorized. Please login as admin.");
-
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 500); // Smooth transition
       }
     };
 
@@ -71,6 +97,11 @@ const AdminDashboardPage = () => {
   }, []);
 
   const handleUserClick = async (userId) => {
+    if (selectedUserId === userId) {
+      setSelectedUserId(null);
+      return;
+    }
+    
     setSelectedUserId(userId);
     setLoadingUserOrders(true);
 
@@ -99,462 +130,588 @@ const AdminDashboardPage = () => {
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
-      toast.success("Status update successfully");
-
+      toast.success("Order status updated successfully!");
     } catch (err) {
-      console.error("Failed to update order status", err);
-      toast.error("Status update failed");
-
+      toast.error("Failed to update status.");
     }
   };
-
-  const handleCouponChange = (event) => {
-    const { name, value, checked, type } = event.target;
-
-    setCouponForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const getCouponPayload = () => ({
-    code: couponForm.code,
-    discountType: couponForm.discountType,
-    value: Number(couponForm.value),
-    expiresAt: couponForm.expiresAt || undefined,
-    maxUses: couponForm.maxUses ? Number(couponForm.maxUses) : undefined,
-    isActive: couponForm.isActive,
-  });
 
   const saveCoupon = async (event) => {
     event.preventDefault();
-
     try {
-      const payload = getCouponPayload();
+      const payload = {
+        code: couponForm.code,
+        discountType: couponForm.discountType,
+        value: Number(couponForm.value),
+        expiresAt: couponForm.expiresAt || undefined,
+        maxUses: couponForm.maxUses ? Number(couponForm.maxUses) : undefined,
+        isActive: couponForm.isActive,
+      };
 
       if (editingCouponId) {
-        const res = await axios.put(
-          `${API_URL}/coupons/${editingCouponId}`,
-          payload,
-          { withCredentials: true }
-        );
-
-        setCoupons((prev) =>
-          prev.map((coupon) =>
-            coupon._id === editingCouponId ? res.data : coupon
-          )
-        );
+        const res = await axios.put(`${API_URL}/coupons/${editingCouponId}`, payload, { withCredentials: true });
+        setCoupons(prev => prev.map(c => c._id === editingCouponId ? res.data : c));
+        toast.success("Coupon updated!");
       } else {
-        const res = await axios.post(`${API_URL}/coupons`, payload, {
-          withCredentials: true,
-        });
-
-        setCoupons((prev) => [res.data, ...prev]);
+        const res = await axios.post(`${API_URL}/coupons`, payload, { withCredentials: true });
+        setCoupons(prev => [res.data, ...prev]);
+        toast.success("Coupon created!");
       }
-
       setCouponForm(emptyCouponForm);
       setEditingCouponId(null);
     } catch (err) {
-      console.error("Failed to save coupon", err);
-      toast.error(err.response?.data?.message || "Coupon save failed");
-
+      toast.error(err.response?.data?.message || "Operation failed");
     }
-  };
-
-  const editCoupon = (coupon) => {
-    setEditingCouponId(coupon._id);
-    setCouponForm({
-      code: coupon.code || "",
-      discountType: coupon.discountType || "fixed",
-      value: coupon.value ?? "",
-      expiresAt: coupon.expiresAt ? coupon.expiresAt.slice(0, 10) : "",
-      maxUses: coupon.maxUses ?? "",
-      isActive: coupon.isActive ?? true,
-    });
-  };
-
-  const cancelCouponEdit = () => {
-    setEditingCouponId(null);
-    setCouponForm(emptyCouponForm);
   };
 
   const toggleCouponStatus = async (coupon) => {
     try {
-      const res = await axios.put(
-        `${API_URL}/coupons/${coupon._id}`,
-        { isActive: !coupon.isActive },
-        { withCredentials: true }
-      );
-
-      setCoupons((prev) =>
-        prev.map((item) => (item._id === coupon._id ? res.data : item))
-      );
+      const res = await axios.put(`${API_URL}/coupons/${coupon._id}`, { isActive: !coupon.isActive }, { withCredentials: true });
+      setCoupons(prev => prev.map(c => c._id === coupon._id ? res.data : c));
+      toast.success(`Coupon ${coupon.isActive ? "disabled" : "enabled"}`);
     } catch (err) {
-      console.error("Failed to update coupon status", err);
-      toast.error(err.response?.data?.message || "Coupon status update failed");
-
+      toast.error("Update failed");
     }
   };
-
-  const handleProductChange = (event) => {
-    const { name, value } = event.target;
-    setProductForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const getProductPayload = () => ({
-    name: productForm.name,
-    category: productForm.category
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean),
-    price: Number(productForm.price),
-    stock: Number(productForm.stock),
-    description: productForm.description,
-    images: productForm.images
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean),
-  });
 
   const saveProduct = async (event) => {
     event.preventDefault();
-
     try {
-      const payload = getProductPayload();
+      const payload = {
+        ...productForm,
+        price: Number(productForm.price),
+        stock: Number(productForm.stock),
+        category: productForm.category.split(",").map(c => c.trim()).filter(Boolean),
+        images: productForm.images.split(",").map(i => i.trim()).filter(Boolean),
+      };
 
       if (editingProductId) {
-        const res = await axios.put(
-          `${API_URL}/products/${editingProductId}`,
-          payload,
-          { withCredentials: true }
-        );
-
-        setProducts((prev) =>
-          prev.map((product) =>
-            product._id === editingProductId ? res.data : product
-          )
-        );
+        const res = await axios.put(`${API_URL}/products/${editingProductId}`, payload, { withCredentials: true });
+        setProducts(prev => prev.map(p => p._id === editingProductId ? res.data : p));
+        toast.success("Product updated!");
       } else {
-        const res = await axios.post(`${API_URL}/products`, payload, {
-          withCredentials: true,
-        });
-
-        setProducts((prev) => [...prev, res.data]);
+        const res = await axios.post(`${API_URL}/products`, payload, { withCredentials: true });
+        setProducts(prev => [...prev, res.data]);
+        toast.success("Product published!");
       }
-
       setProductForm(emptyProductForm);
       setEditingProductId(null);
     } catch (err) {
-      console.error("Failed to save product", err);
-      toast.error(err.response?.data?.message || "Product save failed");
-
+      toast.error(err.response?.data?.message || "Operation failed");
     }
-  };
-
-  const editProduct = (product) => {
-    setEditingProductId(product._id);
-    setProductForm({
-      name: product.name || "",
-      category: Array.isArray(product.category)
-        ? product.category.join(", ")
-        : product.category || "",
-      price: product.price ?? "",
-      stock: product.stock ?? "",
-      description: product.description || "",
-      images: Array.isArray(product.images)
-        ? product.images.join(", ")
-        : product.image || "",
-    });
-  };
-
-  const cancelProductEdit = () => {
-    setEditingProductId(null);
-    setProductForm(emptyProductForm);
   };
 
   const deleteProduct = async (productId) => {
-    const shouldDelete = window.confirm("Delete this product?");
-    if (!shouldDelete) return;
-
+    if (!window.confirm("Are you sure you want to delete this product? This action cannot be undone.")) return;
     try {
-      await axios.delete(`${API_URL}/products/${productId}`, {
-        withCredentials: true,
-      });
-
-      setProducts((prev) => prev.filter((product) => product._id !== productId));
+      await axios.delete(`${API_URL}/products/${productId}`, { withCredentials: true });
+      setProducts(prev => prev.filter(p => p._id !== productId));
+      toast.success("Product removed from inventory.");
     } catch (err) {
-      console.error("Failed to delete product", err);
-      toast.error(err.response?.data?.message || "Product delete failed");
-
+      toast.error("Delete failed");
     }
   };
 
-  if (loading) return <p>Loading admin dashboard...</p>;
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+    (Array.isArray(p.category) && p.category.some(c => c.toLowerCase().includes(productSearch.toLowerCase())))
+  );
+
+  const filteredUsers = users.filter(u => 
+    u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
+    u.email.toLowerCase().includes(userSearch.toLowerCase())
+  );
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "pending": return styles.badgePending;
+      case "processing": return styles.badgeProcessing;
+      case "shipped": return styles.badgeShipped;
+      case "delivered": return styles.badgeDelivered;
+      case "cancelled": return styles.badgeCancelled;
+      default: return "";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.skeleton} style={{height: "60px", marginBottom: "40px"}}></div>
+        <div className={styles.tabNav} style={{opacity: 0.5}}><div className={styles.skeleton} style={{width: "100%", height: "50px"}}></div></div>
+        <div className={styles.summary}>
+          {[1, 2, 3].map(i => <div key={i} className={styles.skeleton} style={{height: "120px", borderRadius: "16px"}}></div>)}
+        </div>
+        <div className={styles.skeleton} style={{height: "300px", borderRadius: "24px"}}></div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.heading}>Admin Dashboard</h2>
+      <h2 className={styles.heading}>Administrative Dashboard</h2>
 
-      {/* Summary Cards */}
-      <div className={styles.summary}>
+      <nav className={styles.tabNav}>
         {[
-          { label: "Total Orders", value: summary.totalOrders ?? 0 },
-          { label: "Low Stock (<5)", value: summary.lowStockCount ?? 0 },
-          { label: "Monthly Revenue", value: `Rs. ${summary.monthlyRevenue ?? 0}` },
-        ].map((item) => (
-          <div className={styles.card} key={item.label}>
-            <h3>{item.label}</h3>
-            <p>{item.value ?? 0}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Users List */}
-      <div className={styles.section}>
-        <h3>All Users</h3>
-        <ul className={styles.list}>
-          {users.map((user) => (
-            <li
-              key={user._id}
-              onClick={() => handleUserClick(user._id)}
-              className={selectedUserId === user._id ? styles.activeUser : ""}
-            >
-              {user.username} ({user.email})
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className={styles.section}>
-        <h3>Coupons</h3>
-        <form onSubmit={saveCoupon} className={styles.productForm}>
-          <input
-            type="text"
-            name="code"
-            value={couponForm.code}
-            onChange={handleCouponChange}
-            placeholder="Code"
-            required
-          />
-          <select
-            name="discountType"
-            value={couponForm.discountType}
-            onChange={handleCouponChange}
+          { id: "overview", label: "Overview", icon: faGauge },
+          { id: "orders", label: "Orders", icon: faShoppingBag },
+          { id: "products", label: "Products", icon: faUtensils },
+          { id: "users", label: "Users", icon: faUsers },
+          { id: "coupons", label: "Coupons", icon: faTicket },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            className={`${styles.tabButton} ${activeTab === tab.id ? styles.activeTab : ""}`}
+            onClick={() => {
+              setActiveTab(tab.id);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           >
-            <option value="fixed">fixed</option>
-            <option value="percentage">percentage</option>
-          </select>
-          <input
-            type="number"
-            name="value"
-            min="0"
-            value={couponForm.value}
-            onChange={handleCouponChange}
-            placeholder="Value"
-            required
-          />
-          <input
-            type="date"
-            name="expiresAt"
-            value={couponForm.expiresAt}
-            onChange={handleCouponChange}
-          />
-          <input
-            type="number"
-            name="maxUses"
-            min="1"
-            value={couponForm.maxUses}
-            onChange={handleCouponChange}
-            placeholder="Max uses"
-          />
-          <label className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              name="isActive"
-              checked={couponForm.isActive}
-              onChange={handleCouponChange}
-            />
-            Active
-          </label>
-          <div className={styles.formActions}>
-            <button type="submit">
-              {editingCouponId ? "Update Coupon" : "Add Coupon"}
-            </button>
-            {editingCouponId && (
-              <button type="button" onClick={cancelCouponEdit}>
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
-        <ul className={styles.list}>
-          {coupons.map((coupon) => (
-            <li key={coupon._id}>
-              <div className={styles.productItem}>
-                <span>
-                  <strong>{coupon.code}</strong> - {coupon.discountType}{" "}
-                  {coupon.value} - {coupon.isActive ? "Active" : "Inactive"} -
-                  Uses: {coupon.usedCount ?? 0}
-                  {coupon.maxUses ? `/${coupon.maxUses}` : "/unlimited"}
-                  {coupon.expiresAt
-                    ? ` - Expires: ${coupon.expiresAt.slice(0, 10)}`
-                    : " - No expiry"}
-                </span>
-                <div className={styles.productActions}>
-                  <button onClick={() => editCoupon(coupon)}>Edit</button>
-                  <button onClick={() => toggleCouponStatus(coupon)}>
-                    {coupon.isActive ? "Deactivate" : "Activate"}
-                  </button>
-                </div>
+            <FontAwesomeIcon icon={tab.icon} />
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* ── OVERVIEW TAB ── */}
+      {activeTab === "overview" && (
+        <div className={styles.tabContent}>
+          <div className={styles.summary}>
+            <div className={styles.card}>
+              <div className={styles.cardIcon}><FontAwesomeIcon icon={faChartLine} /></div>
+              <div className={styles.cardInfo}>
+                <h3>Total Orders</h3>
+                <p>{summary.totalOrders ?? 0}</p>
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className={styles.section}>
-        <h3>Products</h3>
-        <form onSubmit={saveProduct} className={styles.productForm}>
-          <input
-            type="text"
-            name="name"
-            value={productForm.name}
-            onChange={handleProductChange}
-            placeholder="Name"
-            required
-          />
-          <input
-            type="text"
-            name="category"
-            value={productForm.category}
-            onChange={handleProductChange}
-            placeholder="Categories, comma separated"
-            required
-          />
-          <input
-            type="number"
-            name="price"
-            min="0"
-            value={productForm.price}
-            onChange={handleProductChange}
-            placeholder="Price"
-            required
-          />
-          <input
-            type="number"
-            name="stock"
-            min="0"
-            value={productForm.stock}
-            onChange={handleProductChange}
-            placeholder="Stock"
-            required
-          />
-          <input
-            type="text"
-            name="images"
-            value={productForm.images}
-            onChange={handleProductChange}
-            placeholder="Image URLs, comma separated, max 3"
-          />
-          <textarea
-            name="description"
-            value={productForm.description}
-            onChange={handleProductChange}
-            placeholder="Description"
-          />
-          <div className={styles.formActions}>
-            <button type="submit">
-              {editingProductId ? "Update Product" : "Add Product"}
-            </button>
-            {editingProductId && (
-              <button type="button" onClick={cancelProductEdit}>
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
-
-        <ul className={styles.list}>
-          {products.map((product) => (
-            <li key={product._id}>
-              <div className={styles.productItem}>
-                <span>
-                  <strong>{product.name}</strong> - Rs. {product.price} - Stock:{" "}
-                  {product.stock}
-                </span>
-                <div className={styles.productActions}>
-                  <button onClick={() => editProduct(product)}>Edit</button>
-                  <button onClick={() => deleteProduct(product._id)}>
-                    Delete
-                  </button>
-                </div>
+            </div>
+            <div className={styles.card}>
+              <div className={styles.cardIcon} style={{background: "rgba(242, 100, 48, 0.1)", color: "var(--color-cta)"}}>
+                <FontAwesomeIcon icon={faTriangleExclamation} />
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Selected User's Order History */}
-      {selectedUserId && (
-        <div className={styles.section}>
-          <h3>Order History for User ID: {selectedUserId}</h3>
-          {loadingUserOrders ? (
-            <p>Loading orders...</p>
-          ) : selectedUserOrders.length === 0 ? (
-            <p>No orders found.</p>
-          ) : (
-            <ul className={styles.list}>
-              {selectedUserOrders.map((order) => (
-                <li key={order._id}>
-                  <strong>Order #{order._id.slice(-6)}</strong> - ₹
-                  {order.totalPrice}
-                  <ul className={styles.subList}>
-                    {order.products.map((item, index) => (
-                      <li key={index} className={styles.productItem}>
-                        🛒 {item.productId?.name || "Unknown Product"} — ₹
-                        {item.productId?.price} × {item.quantity}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          )}
+              <div className={styles.cardInfo}>
+                <h3>Low Stock (&lt;5)</h3>
+                <p>{summary.lowStockCount ?? 0}</p>
+              </div>
+            </div>
+            <div className={styles.card}>
+              <div className={styles.cardIcon} style={{background: "rgba(39, 174, 96, 0.1)", color: "var(--color-success)"}}>
+                <FontAwesomeIcon icon={faIndianRupeeSign} />
+              </div>
+              <div className={styles.cardInfo}>
+                <h3>Monthly Revenue</h3>
+                <p>₹{summary.monthlyRevenue ?? 0}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h3><FontAwesomeIcon icon={faGauge} /> Quick Management</h3>
+            </div>
+            <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-lg)"}}>
+              <button className={`${styles.btn} ${styles.btnCTA}`} onClick={() => setActiveTab("products")}>
+                <FontAwesomeIcon icon={faPlus} /> Add New Product
+              </button>
+              <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setActiveTab("orders")}>
+                <FontAwesomeIcon icon={faShoppingBag} /> Manage Orders
+              </button>
+              <button className={styles.btn} style={{background: "var(--color-surface-alt)"}} onClick={() => setActiveTab("users")}>
+                <FontAwesomeIcon icon={faUsers} /> User Directory
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* All Orders with Status Control */}
-      <div className={styles.section}>
-        <h3>All Orders</h3>
-        <ul className={styles.list}>
-          {orders.map((order) => (
-            <li key={order._id}>
-              <div className={styles.orderItem}>
-                <span>
-                  <strong>#{order._id.slice(-6)}</strong> - ₹{order.totalPrice}{" "}
-                  - <em>{order.userId?.username || "Unknown"}</em>
-                </span>
-                <select
-                  value={order.status}
-                  onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                >
-                  {[
-                    "pending",
-                    "processing",
-                    "shipped",
-                    "delivered",
-                    "cancelled",
-                  ].map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
+      {/* ── ORDERS TAB ── */}
+      {activeTab === "orders" && (
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h3><FontAwesomeIcon icon={faShoppingBag} /> Order History</h3>
+            <span className={styles.badge} style={{background: "var(--color-primary-light)", color: "var(--color-primary)"}}>
+              {orders.length} Total Orders
+            </span>
+          </div>
+          <div className={styles.dataGrid}>
+            {orders.length === 0 ? <p style={{textAlign: "center", padding: "40px", color: "var(--color-text-secondary)"}}>No orders recorded yet.</p> : orders.map((order) => (
+              <div key={order._id} className={styles.dataRow}>
+                <div className={styles.rowMain}>
+                  <span className={styles.rowTitle}>Order #{order._id.slice(-6)}</span>
+                  <div className={styles.rowSubtitle}>
+                    <span><FontAwesomeIcon icon={faUsers} /> {order.userId?.username || "Guest"}</span>
+                    <span>•</span>
+                    <span><FontAwesomeIcon icon={faIndianRupeeSign} /> {order.totalPrice}</span>
+                    <span>•</span>
+                    <span><FontAwesomeIcon icon={faCalendarDay} /> {new Date(order.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <div className={styles.rowActions}>
+                  <span className={`${styles.badge} ${getStatusBadgeClass(order.status)}`}>
+                    {order.status}
+                  </span>
+                  <select
+                    className={styles.tabButton}
+                    style={{padding: "6px 12px", fontSize: "0.8rem", border: "1px solid var(--color-border-light)", background: "white"}}
+                    value={order.status}
+                    onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                  >
+                    {["pending", "processing", "shipped", "delivered", "cancelled"].map(s => (
+                      <option key={s} value={s}>{s.toUpperCase()}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── PRODUCTS TAB ── */}
+      {activeTab === "products" && (
+        <>
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h3>
+                <FontAwesomeIcon icon={editingProductId ? faPen : faPlus} /> 
+                {editingProductId ? "Modify Product" : "New Product Entry"}
+              </h3>
+              {editingProductId && (
+                <button className={styles.btnDanger} style={{padding: "8px 16px"}} onClick={() => {setEditingProductId(null); setProductForm(emptyProductForm);}}>
+                  <FontAwesomeIcon icon={faXmark} /> Cancel Edit
+                </button>
+              )}
+            </div>
+            <form onSubmit={saveProduct} className={styles.formGrid}>
+              <div className={styles.formControl}>
+                <label>Product Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Chocolate Truffle Cake"
+                  value={productForm.name}
+                  onChange={e => setProductForm({...productForm, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className={styles.formControl}>
+                <label>Categories (Comma Separated)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Best Sellers, Cakes, Vegetarian"
+                  value={productForm.category}
+                  onChange={e => setProductForm({...productForm, category: e.target.value})}
+                  required
+                />
+              </div>
+              <div className={styles.formControl}>
+                <label>Unit Price (₹)</label>
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  value={productForm.price}
+                  onChange={e => setProductForm({...productForm, price: e.target.value})}
+                  required
+                />
+              </div>
+              <div className={styles.formControl}>
+                <label>Current Stock</label>
+                <input
+                  type="number"
+                  placeholder="Available quantity"
+                  value={productForm.stock}
+                  onChange={e => setProductForm({...productForm, stock: e.target.value})}
+                  required
+                />
+              </div>
+              <div className={`${styles.formControl} ${styles.fullWidth}`}>
+                <label>Image URLs (Up to 3, Comma Separated)</label>
+                <input
+                  type="text"
+                  placeholder="https://example.com/image.jpg, ..."
+                  value={productForm.images}
+                  onChange={e => setProductForm({...productForm, images: e.target.value})}
+                />
+              </div>
+              <div className={`${styles.formControl} ${styles.fullWidth}`}>
+                <label>Product Description</label>
+                <textarea
+                  placeholder="Tell customers what makes this product special..."
+                  value={productForm.description}
+                  onChange={e => setProductForm({...productForm, description: e.target.value})}
+                />
+              </div>
+              <button type="submit" className={`${styles.btn} ${styles.btnCTA}`} style={{gridColumn: "1 / -1"}}>
+                <FontAwesomeIcon icon={editingProductId ? faCheck : faPlus} /> 
+                {editingProductId ? "Confirm Updates" : "Publish to Menu"}
+              </button>
+            </form>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h3><FontAwesomeIcon icon={faBoxOpen} /> Current Inventory</h3>
+              <div className={styles.searchContainer} style={{marginBottom: 0}}>
+                <FontAwesomeIcon icon={faMagnifyingGlass} className={styles.searchIcon} />
+                <input 
+                  type="text" 
+                  className={styles.searchInput} 
+                  placeholder="Filter inventory..." 
+                  value={productSearch}
+                  onChange={e => setProductSearch(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className={styles.dataGrid}>
+              {filteredProducts.length === 0 ? <p style={{textAlign: "center", padding: "40px", color: "var(--color-text-secondary)"}}>No matching products found.</p> : filteredProducts.map(product => (
+                <div key={product._id} className={styles.dataRow}>
+                  <div className={styles.rowMain}>
+                    <span className={styles.rowTitle}>{product.name}</span>
+                    <div className={styles.rowSubtitle}>
+                      <span>₹{product.price}</span>
+                      <span>•</span>
+                      <span style={{color: product.stock < 5 ? "var(--color-error)" : "inherit", fontWeight: product.stock < 5 ? 800 : 400}}>
+                        Stock: {product.stock}
+                      </span>
+                      <span>•</span>
+                      <span>{Array.isArray(product.category) ? product.category.join(", ") : product.category}</span>
+                    </div>
+                  </div>
+                  <div className={styles.rowActions}>
+                    <button className={styles.btn} style={{background: "var(--color-bg)", padding: "10px"}} title="Edit Product" onClick={() => {
+                      setEditingProductId(product._id);
+                      setProductForm({
+                        name: product.name,
+                        price: product.price,
+                        stock: product.stock,
+                        category: product.category.join(", "),
+                        description: product.description,
+                        images: product.images.join(", ")
+                      });
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}>
+                      <FontAwesomeIcon icon={faPen} style={{color: "var(--color-primary)"}} />
+                    </button>
+                    <button className={styles.btnDanger} style={{padding: "10px"}} title="Delete Product" onClick={() => deleteProduct(product._id)}>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── USERS TAB ── */}
+      {activeTab === "users" && (
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h3><FontAwesomeIcon icon={faUsers} /> Customer Directory</h3>
+            <div className={styles.searchContainer} style={{marginBottom: 0}}>
+              <FontAwesomeIcon icon={faMagnifyingGlass} className={styles.searchIcon} />
+              <input 
+                type="text" 
+                className={styles.searchInput} 
+                placeholder="Search by name or email..." 
+                value={userSearch}
+                onChange={e => setUserSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className={styles.dataGrid}>
+            {filteredUsers.length === 0 ? (
+              <p style={{ textAlign: "center", padding: "40px", color: "var(--color-text-secondary)" }}>
+                No users match your search.
+              </p>
+            ) : (
+              filteredUsers.map((user) => (
+                <React.Fragment key={user._id}>
+                  <div
+                    className={`${styles.dataRow} ${selectedUserId === user._id ? styles.activeTab : ""}`}
+                    onClick={() => handleUserClick(user._id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className={styles.rowMain}>
+                      <span className={styles.rowTitle}>{user.username}</span>
+                      <span className={styles.rowSubtitle}>{user.email}</span>
+                    </div>
+                    <div className={styles.rowActions}>
+                      <span style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)" }}>
+                        {selectedUserId === user._id ? "Hide History" : "View History"}
+                      </span>
+                      <FontAwesomeIcon icon={faHistory} style={{ color: "var(--color-primary)" }} />
+                    </div>
+                  </div>
+
+                  {selectedUserId === user._id && (
+                    <div
+                      style={{
+                        margin: "var(--space-sm) 0 var(--space-lg) var(--space-xl)",
+                        padding: "var(--space-lg)",
+                        background: "var(--color-bg)",
+                        borderRadius: "var(--radius-md)",
+                        borderLeft: "4px solid var(--color-primary)",
+                        animation: "fadeIn 0.3s ease-out",
+                      }}
+                    >
+                      <h4 style={{ marginBottom: "var(--space-md)", fontSize: "0.9rem" }}>
+                        Order History: {user.username}
+                      </h4>
+                      {loadingUserOrders ? (
+                        <div className={styles.skeleton} style={{ height: "60px" }}></div>
+                      ) : selectedUserOrders.length === 0 ? (
+                        <p style={{ fontSize: "0.85rem" }}>No orders yet.</p>
+                      ) : (
+                        <div className={styles.dataGrid}>
+                          {selectedUserOrders.map((order) => (
+                            <div
+                              key={order._id}
+                              className={styles.dataRow}
+                              style={{ background: "white", padding: "var(--space-sm) var(--space-md)" }}
+                            >
+                              <div className={styles.rowMain}>
+                                <span className={styles.rowTitle} style={{ fontSize: "0.85rem" }}>
+                                  Order #{order._id.slice(-6)}
+                                </span>
+                                <span className={styles.rowSubtitle} style={{ fontSize: "0.75rem" }}>
+                                  ₹{order.totalPrice} • {order.products.length} items •{" "}
+                                  {new Date(order.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </React.Fragment>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── COUPONS TAB ── */}
+      {activeTab === "coupons" && (
+        <>
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h3>
+                <FontAwesomeIcon icon={editingCouponId ? faPen : faTicket} /> 
+                {editingCouponId ? "Edit Promotion" : "Launch New Campaign"}
+              </h3>
+              {editingCouponId && (
+                <button className={styles.btnDanger} style={{padding: "8px 16px"}} onClick={() => {setEditingCouponId(null); setCouponForm(emptyCouponForm);}}>
+                  <FontAwesomeIcon icon={faXmark} /> Discard Changes
+                </button>
+              )}
+            </div>
+            <form onSubmit={saveCoupon} className={styles.formGrid}>
+              <div className={styles.formControl}>
+                <label>Promotion Code</label>
+                <input
+                  type="text"
+                  placeholder="e.g. WELCOME20"
+                  value={couponForm.code}
+                  onChange={e => setCouponForm({...couponForm, code: e.target.value.toUpperCase()})}
+                  required
+                />
+              </div>
+              <div className={styles.formControl}>
+                <label>Discount Type</label>
+                <select value={couponForm.discountType} onChange={e => setCouponForm({...couponForm, discountType: e.target.value})}>
+                  <option value="fixed">Flat Rate (₹)</option>
+                  <option value="percentage">Percentage (%)</option>
                 </select>
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+              <div className={styles.formControl}>
+                <label>Benefit Value</label>
+                <input
+                  type="number"
+                  placeholder="Value of discount"
+                  value={couponForm.value}
+                  onChange={e => setCouponForm({...couponForm, value: e.target.value})}
+                  required
+                />
+              </div>
+              <div className={styles.formControl}>
+                <label>Expiry Date</label>
+                <input
+                  type="date"
+                  value={couponForm.expiresAt}
+                  onChange={e => setCouponForm({...couponForm, expiresAt: e.target.value})}
+                />
+              </div>
+              <div className={styles.formControl}>
+                <label>Usage Limit (Total)</label>
+                <input
+                  type="number"
+                  placeholder="Infinite if empty"
+                  value={couponForm.maxUses}
+                  onChange={e => setCouponForm({...couponForm, maxUses: e.target.value})}
+                />
+              </div>
+              <div style={{display: "flex", alignItems: "center", gap: "15px", gridColumn: "1 / -1"}}>
+                <input 
+                  type="checkbox" 
+                  id="isActive" 
+                  checked={couponForm.isActive} 
+                  onChange={e => setCouponForm({...couponForm, isActive: e.target.checked})} 
+                  style={{width: "24px", height: "24px", cursor: "pointer"}}
+                />
+                <label htmlFor="isActive" style={{cursor: "pointer", fontSize: "1rem"}}>Activate promotion immediately</label>
+              </div>
+              <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} style={{gridColumn: "1 / -1"}}>
+                <FontAwesomeIcon icon={editingCouponId ? faCheck : faPlus} /> 
+                {editingCouponId ? "Confirm Coupon Update" : "Activate Promotion Code"}
+              </button>
+            </form>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h3><FontAwesomeIcon icon={faTicket} /> Active Promotions</h3>
+            </div>
+            <div className={styles.dataGrid}>
+              {coupons.length === 0 ? <p style={{textAlign: "center", padding: "40px", color: "var(--color-text-secondary)"}}>No coupons created yet.</p> : coupons.map(coupon => (
+                <div key={coupon._id} className={styles.dataRow}>
+                  <div className={styles.rowMain}>
+                    <span className={styles.rowTitle}>{coupon.code}</span>
+                    <div className={styles.rowSubtitle}>
+                      <span style={{fontWeight: 800, color: "var(--color-primary)"}}>
+                        {coupon.discountType === "percentage" ? `${coupon.value}%` : `₹${coupon.value}`} OFF
+                      </span>
+                      <span>•</span>
+                      <span>Uses: {coupon.usedCount ?? 0} {coupon.maxUses ? `/ ${coupon.maxUses}` : ""}</span>
+                      <span>•</span>
+                      <span style={{color: coupon.isActive ? "var(--color-success)" : "var(--color-error)"}}>
+                        {coupon.isActive ? "ACTIVE" : "INACTIVE"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.rowActions}>
+                    <button className={styles.btn} style={{background: "var(--color-bg)", color: "var(--color-text-primary)"}} onClick={() => toggleCouponStatus(coupon)}>
+                      {coupon.isActive ? "Deactivate" : "Activate"}
+                    </button>
+                    <button className={styles.btn} style={{background: "var(--color-bg)"}} onClick={() => {
+                      setEditingCouponId(coupon._id);
+                      setCouponForm({
+                        code: coupon.code,
+                        discountType: coupon.discountType,
+                        value: coupon.value,
+                        expiresAt: coupon.expiresAt?.slice(0, 10) || "",
+                        maxUses: coupon.maxUses || "",
+                        isActive: coupon.isActive
+                      });
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}>
+                      <FontAwesomeIcon icon={faPen} style={{color: "var(--color-primary)"}} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
