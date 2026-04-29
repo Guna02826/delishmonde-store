@@ -38,7 +38,7 @@ function FoodItem({ food, variant = "menu", successMode = "inline" }) {
       <img
         className={variant === "home" ? styles.homeImage : styles.menuImage}
         src={productImage}
-        alt={food.name || "Food item"}
+        alt={`Delicious ${food.name || "food item"} from Delish Monde`}
         loading="lazy"
       />
       <h3>{food.name}</h3>

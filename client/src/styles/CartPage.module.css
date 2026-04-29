@@ -294,26 +294,90 @@
   background: var(--color-primary-hover);
 }
 
+.emptyWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3xl);
+  padding: var(--space-2xl) 0;
+  min-height: 60vh;
+}
+
 .emptyState {
   max-width: 520px;
-  margin: var(--space-xl) auto;
-  padding: var(--space-xl);
+  width: 100%;
+  padding: var(--space-3xl);
   text-align: center;
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.emptyIcon {
+  font-size: 64px;
+  margin-bottom: var(--space-md);
 }
 
 .emptyState h3 {
   margin: 0 0 var(--space-sm);
   color: var(--color-text-primary);
-  font-size: var(--fs-h3);
+  font-size: var(--fs-h2);
+  font-weight: 800;
 }
 
 .emptyState p {
-  margin: 0 0 var(--space-md);
+  margin: 0 0 var(--space-xl);
   color: var(--color-text-secondary);
+  font-size: var(--fs-body);
+}
+
+.emptyActions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.secondaryButton {
+  padding: var(--space-sm) var(--space-lg);
+  min-height: var(--touch-min);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.secondaryButton:hover {
+  background: var(--color-primary-light);
+}
+
+.recommendations {
+  width: 100%;
+  max-width: var(--max-width);
+}
+
+.recHeader {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.recHeader h3 {
+  font-size: var(--fs-h2);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.recHeader p {
+  color: var(--color-text-secondary);
+}
+
+.recGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-xl);
 }
 
 @media (max-width: 900px) {
@@ -329,6 +393,18 @@
 @media (max-width: 560px) {
   .cartContainer {
     padding: var(--space-lg) var(--space-sm);
+  }
+
+  .emptyWrapper {
+    gap: var(--space-xl);
+  }
+
+  .emptyActions {
+    flex-direction: column;
+  }
+
+  .emptyState {
+    padding: var(--space-xl);
   }
 
   .pageHeader {

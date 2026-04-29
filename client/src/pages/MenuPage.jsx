@@ -2,6 +2,8 @@ import styles from "../styles/MenuPage.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import FoodItem from "../components/FoodItem";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilter, faChevronDown, faChevronUp, faSearch } from "@fortawesome/free-solid-svg-icons";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -18,6 +20,7 @@ function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [headerHeight, setHeaderHeight] = useState(64);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     const headerEl = document.querySelector("header");
@@ -90,43 +93,82 @@ function MenuPage() {
 
   return (
     <div className={styles.menuContainer}>
-      <div className={styles.filters} style={{ top: `${headerHeight}px` }}>
-        <input
-          type="text"
-          name="search"
-          value={filters.search}
-          onChange={handleFilterChange}
-          placeholder="Search products"
-        />
-        <select
-          name="category"
-          value={filters.category}
-          onChange={handleFilterChange}
-        >
-          <option value="">All categories</option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          name="minPrice"
-          min="0"
-          value={filters.minPrice}
-          onChange={handleFilterChange}
-          placeholder="Min price"
-        />
-        <input
-          type="number"
-          name="maxPrice"
-          min="0"
-          value={filters.maxPrice}
-          onChange={handleFilterChange}
-          placeholder="Max price"
-        />
-        <button onClick={clearFilters}>Clear</button>
+      <div
+        className={`${styles.filters} ${isFilterOpen ? styles.filterOpen : ""}`}
+        style={{ top: `${headerHeight}px` }}
+      >
+        <div className={styles.filterHeader} onClick={() => setIsFilterOpen(!isFilterOpen)}>
+          <div className={styles.searchPreview}>
+            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <span>{filters.search || "Search & Filter"}</span>
+          </div>
+          <button className={styles.filterToggle}>
+            <FontAwesomeIcon icon={faFilter} />
+            <span>Filters</span>
+            <FontAwesomeIcon icon={isFilterOpen ? faChevronUp : faChevronDown} />
+          </button>
+        </div>
+
+        <div className={styles.filterContent}>
+          <div className={styles.filterGroup}>
+            <label htmlFor="search">Search</label>
+            <input
+              id="search"
+              type="text"
+              name="search"
+              value={filters.search}
+              onChange={handleFilterChange}
+              placeholder="Search products..."
+            />
+          </div>
+
+          <div className={styles.filterGroup}>
+            <label htmlFor="category">Category</label>
+            <select
+              id="category"
+              name="category"
+              value={filters.category}
+              onChange={handleFilterChange}
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.filterGroup}>
+            <label htmlFor="minPrice">Min Price</label>
+            <input
+              id="minPrice"
+              type="number"
+              name="minPrice"
+              min="0"
+              value={filters.minPrice}
+              onChange={handleFilterChange}
+              placeholder="Min Rs."
+            />
+          </div>
+
+          <div className={styles.filterGroup}>
+            <label htmlFor="maxPrice">Max Price</label>
+            <input
+              id="maxPrice"
+              type="number"
+              name="maxPrice"
+              min="0"
+              value={filters.maxPrice}
+              onChange={handleFilterChange}
+              placeholder="Max Rs."
+            />
+          </div>
+
+          <button className={styles.clearButton} onClick={clearFilters}>
+            Clear Filters
+          </button>
+        </div>
       </div>
 
       {foods.length === 0 ? (

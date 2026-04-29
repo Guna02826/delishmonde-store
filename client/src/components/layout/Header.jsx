@@ -10,7 +10,10 @@ import {
   faUserPlus,
   faSignIn,
   faRightFromBracket,
+  faBars,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
 import styles from "../../styles/Header.module.css";
 import delishMondeLogo from "../../assets/images/Delish Monde - Logo.png";
 import { useAuth } from "../../context/AuthContext";
@@ -21,6 +24,21 @@ function Header() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Close menu when location changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
+
+  // Prevent scrolling when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMenuOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -36,7 +54,10 @@ function Header() {
 
         <h1 className={styles.brandTitle}>Delish Monde</h1>
 
-        <nav className={styles.navContainer}>
+
+        <nav
+          className={`${styles.navContainer} ${isMenuOpen ? styles.menuOpen : ""}`}
+        >
           <ul className={styles.navbar}>
             <li>
               <NavLink to="/">
@@ -94,9 +115,41 @@ function Header() {
               </>
             )}
           </ul>
+
+          <div className={styles.mobileAccountActions}>
+            {user ? (
+              <div className={styles.accountActions}>
+                <span className={styles.accountName} title={user.username}>
+                  {user.username}
+                  {user.email === "demo@delishmonde.test" && (
+                    <span className={styles.demoBadge}>DEMO</span>
+                  )}
+                </span>
+                <button type="button" onClick={handleLogout}>
+                  <FontAwesomeIcon
+                    icon={faRightFromBracket}
+                    className={styles.iconSpacing}
+                  />
+                  <span className={styles.logoutText}>Logout</span>
+                </button>
+              </div>
+            ) : (
+              <div className={styles.authLinks}>
+                <NavLink to="/login" state={{ from: location.pathname }}>
+                  <FontAwesomeIcon icon={faSignIn} className={styles.iconSpacing} />
+                  Login
+                </NavLink>
+                <span className={styles.divider}>|</span>
+                <NavLink to="/register">
+                  <FontAwesomeIcon icon={faUserPlus} className={styles.iconSpacing} />
+                  Register
+                </NavLink>
+              </div>
+            )}
+          </div>
         </nav>
 
-        <div className={styles.loginSignup}>
+        <div className={styles.desktopAccountActions}>
           {user ? (
             <div className={styles.accountActions}>
               <span className={styles.accountName} title={user.username}>
@@ -114,19 +167,35 @@ function Header() {
               </button>
             </div>
           ) : (
-            <>
+            <div className={styles.authLinks}>
               <NavLink to="/login" state={{ from: location.pathname }}>
                 <FontAwesomeIcon icon={faSignIn} className={styles.iconSpacing} />
                 Login
               </NavLink>
-              <span>|</span>
+              <span className={styles.divider}>|</span>
               <NavLink to="/register">
                 <FontAwesomeIcon icon={faUserPlus} className={styles.iconSpacing} />
                 Register
               </NavLink>
-            </>
+            </div>
           )}
         </div>
+
+        <button
+          className={styles.menuToggle}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-expanded={isMenuOpen}
+          aria-label="Toggle navigation menu"
+        >
+          <FontAwesomeIcon icon={isMenuOpen ? faXmark : faBars} />
+        </button>
+
+        {isMenuOpen && (
+          <div
+            className={styles.overlay}
+            onClick={() => setIsMenuOpen(false)}
+          />
+        )}
       </header>
     </>
   );

@@ -1,49 +1,46 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   display: grid;
-  grid-template-columns: 150px minmax(0, 1fr) max-content;
-  grid-template-areas:
-    "logo title account"
-    "logo nav account";
+  grid-template-columns: auto auto 1fr auto;
+  grid-template-areas: "logo title nav account";
   align-items: center;
-  gap: var(--space-xs) var(--space-lg);
-  min-height: 74px;
+  gap: var(--space-lg);
+  min-height: 80px;
   padding: var(--space-sm) var(--space-lg);
   background-color: var(--color-primary);
   box-shadow: var(--shadow-card);
+  transition: all var(--transition-normal);
 }
 
 .logoContainer {
   grid-area: logo;
-  justify-self: start;
   display: flex;
   align-items: center;
 }
 
 .header img {
-  width: 118px;
+  width: clamp(60px, 8vw, 100px);
   height: auto;
-  border-radius: var(--radius-md);
-  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  transition: transform var(--transition-normal);
 }
 
 .brandTitle {
   grid-area: title;
-  justify-self: center;
+  justify-self: start;
   margin: 0;
   color: var(--color-text-on-dark);
   font-size: var(--fs-h2);
-  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.5px;
   white-space: nowrap;
 }
 
 .navContainer {
   grid-area: nav;
   justify-self: center;
-  min-width: 0;
-  max-width: 100%;
 }
 
 .navbar {
@@ -54,272 +51,275 @@
   padding: 0;
   margin: 0;
   gap: var(--space-md);
-  flex-wrap: wrap;
-}
-
-.navbar li {
-  margin: 0;
 }
 
 .navbar a {
   display: inline-flex;
   align-items: center;
-  min-height: 32px;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
   color: var(--color-text-on-dark);
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition: background var(--transition-normal), opacity var(--transition-normal);
+  transition: all var(--transition-fast);
 }
 
-.navbar a:hover {
-  background: rgba(255, 255, 255, 0.12);
-  opacity: 0.95;
+.navbar a:hover,
+.navbar a:global(.active) {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
 }
 
-.loginSignup {
+.desktopAccountActions {
   grid-area: account;
-  justify-self: end;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-xs);
-  min-width: 0;
-  width: auto;
-  max-width: 100%;
-  color: var(--color-text-on-dark);
-  flex-wrap: nowrap;
+  gap: var(--space-sm);
 }
 
-.loginSignup a,
-.loginSignup button {
+.authLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.divider {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--fs-small);
+  user-select: none;
+}
+
+.desktopAccountActions a,
+.desktopAccountActions button,
+.mobileAccountActions a,
+.mobileAccountActions button {
   display: inline-flex;
   align-items: center;
-  min-height: 36px;
-  padding: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   border: none;
   background: transparent;
   color: var(--color-text-on-dark);
-  font-family: inherit;
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  opacity: 0.9;
-  transition: background var(--transition-fast), opacity var(--transition-fast);
-  flex: 0 0 auto;
-  line-height: 1;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
 }
 
-.loginSignup a:hover,
-.loginSignup button:hover {
-  opacity: 1;
-  text-decoration: underline;
+.desktopAccountActions a:hover,
+.desktopAccountActions button:hover,
+.mobileAccountActions a:hover,
+.mobileAccountActions button:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .accountActions {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-xs);
-  min-width: 0;
-  width: auto;
-  max-width: 100%;
-  padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.08);
-  flex: 0 1 auto;
-  flex-wrap: nowrap;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobileAccountActions {
+  display: none; /* Hidden on desktop */
 }
 
 .accountName {
-  display: block;
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: clamp(120px, 18vw, 240px);
-  padding: 0 var(--space-xs);
+  font-weight: 700;
   color: var(--color-text-on-dark);
   font-size: var(--fs-small);
-  font-weight: 700;
-  line-height: 1;
+  max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .demoBadge {
-  display: inline-block;
   background: var(--color-cta);
   color: white;
-  font-size: 9px;
-  padding: 2px 5px;
-  border-radius: 12px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
   margin-left: var(--space-xs);
-  vertical-align: middle;
-  font-weight: 900;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+}
+
+.menuToggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  padding: var(--space-sm);
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
 }
 
 .iconSpacing {
-  margin-right: var(--space-xs);
-  flex-shrink: 0;
+  margin-right: var(--space-sm);
 }
 
 .cartIconWrapper {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
 }
 
 .badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: var(--color-error);
+  top: -10px;
+  right: -10px;
+  background: var(--color-cta);
   color: white;
   font-size: 10px;
-  font-weight: 900;
-  min-width: 18px;
-  height: 18px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
   border: 2px solid var(--color-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@keyframes pop {
-  0% { transform: scale(0.5); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-
-@media screen and (max-width: 768px) {
+@media (max-width: 1024px) {
   .header {
-    grid-template-columns: auto minmax(0, 1fr) max-content;
-    grid-template-areas:
-      "logo title account"
-      "nav nav nav";
-    gap: var(--space-xs) var(--space-sm);
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "logo title account";
     padding: var(--space-sm) var(--space-md);
   }
 
-  .header img {
-    width: 88px;
+  .navContainer {
+    display: none; /* Hide standard nav on tablet/mobile */
   }
 
-  .brandTitle {
+  .navContainer.menuOpen {
+    display: flex;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--color-primary);
+    flex-direction: column;
+    padding: 100px var(--space-lg);
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
+  }
+
+  .navbar li {
+    width: 100%;
+  }
+
+  .navbar a {
+    width: 100%;
+    padding: var(--space-md);
     font-size: var(--fs-body);
   }
 
-  .navbar {
-    gap: var(--space-xs);
+  .mobileAccountActions {
+    display: block;
+    width: 100%;
+    padding-top: var(--space-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .navbar a {
-    min-height: 28px;
-    font-size: var(--fs-xs);
-    padding: var(--space-xs);
+  .mobileAccountActions .accountActions {
+    flex-direction: column;
+    align-items: flex-start;
+    background: transparent;
+    border: none;
+    padding: 0;
   }
 
-  .accountName {
-    max-width: 140px;
-    font-size: var(--fs-xs);
+  .mobileAccountActions .accountName {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--fs-body);
+    max-width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    width: 100%;
   }
 
-  .loginSignup button,
-  .loginSignup a {
-    min-height: 32px;
-    font-size: var(--fs-xs);
-    padding: var(--space-xs);
+  .mobileAccountActions .authLinks {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .mobileAccountActions .divider {
+    display: none;
+  }
+
+  .menuToggle {
+    display: block;
+    grid-area: account;
+    margin-left: var(--space-sm);
+  }
+
+  .overlay {
+    display: block;
+  }
+
+  .desktopAccountActions {
+    display: none;
   }
 }
 
-@media screen and (max-width: 480px) {
-  .header {
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      "logo account"
-      "nav nav";
-    padding: var(--space-xs) var(--space-sm);
-  }
-
-  .header img {
-    width: 62px;
-  }
-
+@media (max-width: 768px) {
   .brandTitle {
-    display: none;
-  }
-
-  .loginSignup {
-    justify-self: end;
-    max-width: 100%;
-  }
-
-  .accountActions {
-    gap: 2px;
-    padding: 2px;
-    max-width: 100%;
-  }
-
-  .accountName {
-    max-width: 96px;
-    padding: 0 2px;
-  }
-
-  .logoutText {
-    display: none;
-  }
-
-  .accountActions button .iconSpacing {
-    margin-right: 0;
-  }
-
-  .loginSignup button,
-  .loginSignup a {
-    min-height: 28px;
-    padding: 2px 4px;
-  }
-
-  .navbar {
-    justify-content: center;
-    gap: 2px;
-  }
-
-  .navbar a {
-    font-size: 10px;
-    padding: 3px 5px;
-  }
-
-  .navbar .iconSpacing {
-    margin-right: 3px;
+    display: none; /* Keep it clean on smaller screens */
   }
 }
 
-@media screen and (max-width: 360px) {
+@media (max-width: 480px) {
   .header {
-    gap: 2px;
+    min-height: 70px;
   }
 
-  .header img {
-    width: 54px;
+  .desktopAccountActions .accountName {
+    display: none; /* Only hide on header, keep visible in mobile menu */
   }
 
-  .accountName {
-    max-width: 74px;
+  .desktopAccountActions button span:not(.iconSpacing),
+  .desktopAccountActions a span:not(.iconSpacing) {
+    display: none;
   }
 
-  .navbar a {
-    font-size: 9px;
-    padding: 2px 4px;
+  .navContainer.menuOpen {
+    width: 100%;
   }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }

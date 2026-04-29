@@ -50,26 +50,26 @@
   --transition-normal:    0.3s ease-in-out;
 
   /* ── Typography Scale (fluid, clamp-based) ── */
-  --fs-h1:                clamp(1.75rem, 4vw, 2.75rem);
-  --fs-h2:                clamp(1.375rem, 3vw, 2rem);
-  --fs-h3:                clamp(1.125rem, 2vw, 1.5rem);
-  --fs-body:              1rem;       /* 16px — W3C baseline                */
-  --fs-small:             0.875rem;   /* 14px — labels, helper text          */
-  --fs-xs:                0.75rem;    /* 12px — timestamps, captions         */
+  --fs-h1:                clamp(2rem, 5vw, 3.5rem);
+  --fs-h2:                clamp(1.5rem, 4vw, 2.5rem);
+  --fs-h3:                clamp(1.25rem, 3vw, 1.75rem);
+  --fs-body:              clamp(1rem, 1vw + 0.75rem, 1.125rem);
+  --fs-small:             clamp(0.875rem, 0.5vw + 0.75rem, 1rem);
+  --fs-xs:                0.75rem;
 
-  /* ── Spacing (8pt Grid) ── */
-  --space-xs:             4px;
-  --space-sm:             8px;
-  --space-md:             16px;
-  --space-lg:             24px;
-  --space-xl:             32px;
-  --space-2xl:            48px;
-  --space-3xl:            64px;
+  /* ── Spacing (Fluid) ── */
+  --space-xs:             clamp(4px, 0.5vw, 6px);
+  --space-sm:             clamp(8px, 1vw, 12px);
+  --space-md:             clamp(16px, 2vw, 24px);
+  --space-lg:             clamp(24px, 3vw, 36px);
+  --space-xl:             clamp(32px, 4vw, 48px);
+  --space-2xl:            clamp(48px, 6vw, 72px);
+  --space-3xl:            clamp(64px, 8vw, 96px);
 
   /* ── Layout ── */
-  --max-width:            1200px;
-  --max-width-narrow:     640px;
-  --max-width-form:       420px;
+  --max-width:            1440px;
+  --max-width-narrow:     800px;
+  --max-width-form:       450px;
 
   /* ── Touch Targets (Fitts's Law: minimum 44px) ── */
   --touch-min:            44px;
@@ -92,6 +92,7 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 img {
@@ -100,15 +101,39 @@ img {
   display: block;
 }
 
+button, a {
+  cursor: pointer;
+  font-family: inherit;
+}
+
 /* ── Utility: Page Container ── */
 main {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-xl) var(--space-md);
   min-height: calc(100vh - 200px);
 }
 
+/* ── Utility: Visually Hidden ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* ── Responsive base adjustments ── */
+@media (max-width: 768px) {
+  main {
+    padding: var(--space-lg) var(--space-md);
+  }
+}
+
 @media (max-width: 480px) {
   main {
     padding: var(--space-md) var(--space-sm);

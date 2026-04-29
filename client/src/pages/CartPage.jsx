@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/CartPage.module.css";
 import axios from "axios";
+import FoodItem from "../components/FoodItem";
 import {
   applyCoupon,
   clearCart as clearCartApi,
@@ -46,6 +47,7 @@ function CartPage() {
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [recommendedFoods, setRecommendedFoods] = useState([]);
 
   const checkoutItems = cartItems.map((item) => ({
     productId: item._id,
@@ -68,9 +70,7 @@ function CartPage() {
           navigate("/login");
           return;
         }
-
         toast.error(error.response?.data?.message || "Failed to load cart.");
-
       } finally {
         setLoading(false);
       }
@@ -79,16 +79,30 @@ function CartPage() {
     loadCart();
   }, [navigate]);
 
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/products`);
+        const bestSellers = response.data.filter(f => f.category?.includes("Best Sellers")).slice(0, 4);
+        setRecommendedFoods(bestSellers.length > 0 ? bestSellers : response.data.slice(0, 4));
+      } catch (error) {
+        console.error("Failed to load recommendations", error);
+      }
+    };
+
+    if (cartItems.length === 0 && !loading) {
+      fetchRecommendations();
+    }
+  }, [cartItems.length, loading]);
+
   const removeFromCart = async (productId) => {
     try {
       const cart = await removeCartItem(productId);
       setCartItems(formatCartItems(cart));
       setAppliedCoupon(null);
       refreshCartCount();
-
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to remove item.");
-
     }
   };
 
@@ -100,10 +114,8 @@ function CartPage() {
       setCartItems(formatCartItems(cart));
       setAppliedCoupon(null);
       refreshCartCount();
-
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update quantity.");
-
     }
   };
 
@@ -113,18 +125,15 @@ function CartPage() {
       setCartItems([]);
       setAppliedCoupon(null);
       refreshCartCount();
-
       setCouponCode("");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to clear cart.");
-
     }
   };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       toast.error("Enter a coupon code first.");
-
       return;
     }
 
@@ -134,21 +143,18 @@ function CartPage() {
     } catch (error) {
       setAppliedCoupon(null);
       toast.error(error.response?.data?.message || "Failed to apply coupon.");
-
     }
   };
 
   const handleCheckout = async () => {
     if (!user) {
       toast.error("You need to log in to proceed to checkout!");
-
       return navigate("/login");
     }
 
     const isRazorpayLoaded = await loadRazorpayScript();
     if (!isRazorpayLoaded) {
       toast.error("Unable to load Razorpay checkout. Please try again.");
-
       return;
     }
 
@@ -187,17 +193,14 @@ function CartPage() {
             );
 
             toast.success("Payment successful! Order placed.");
-
             setCartItems([]);
             setAppliedCoupon(null);
             setCouponCode("");
             refreshCartCount();
-
             navigate("/order-success");
           } catch (error) {
             console.error("Payment verification error", error);
             toast.error(
-
               "Payment verification failed: " +
                 (error.response?.data?.message || error.message)
             );
@@ -206,7 +209,6 @@ function CartPage() {
         modal: {
           ondismiss: () => {
             toast.error("Payment cancelled. Your order was not completed.");
-
           },
         },
         theme: {
@@ -218,7 +220,6 @@ function CartPage() {
     } catch (error) {
       console.error("Checkout error", error);
       toast.error(
-
         "Error starting checkout: " +
           (error.response?.data?.message || error.message)
       );
@@ -228,7 +229,9 @@ function CartPage() {
   if (loading) {
     return (
       <div className={styles.cartContainer}>
-        <div className={styles.emptyState}>Loading cart...</div>
+        <div className={styles.emptyWrapper}>
+          <div className={styles.emptyState}>Loading cart...</div>
+        </div>
       </div>
     );
   }
@@ -248,15 +251,40 @@ function CartPage() {
       </div>
 
       {cartItems.length === 0 ? (
-        <div className={styles.emptyState}>
-          <h3>Your cart is empty</h3>
-          <p>Explore the menu and add your favorite bakes to get started.</p>
-          <button
-            className={styles.menuButton}
-            onClick={() => navigate("/menu")}
-          >
-            Menu
-          </button>
+        <div className={styles.emptyWrapper}>
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>🛒</div>
+            <h3>Your cart is empty</h3>
+            <p>Looks like you haven't added any of our delicious bakes yet.</p>
+            <div className={styles.emptyActions}>
+              <button
+                className={styles.menuButton}
+                onClick={() => navigate("/menu")}
+              >
+                Browse Menu
+              </button>
+              <button
+                className={styles.secondaryButton}
+                onClick={() => navigate("/")}
+              >
+                Go to Home
+              </button>
+            </div>
+          </div>
+
+          {recommendedFoods.length > 0 && (
+            <div className={styles.recommendations}>
+              <div className={styles.recHeader}>
+                <h3>Our Best Sellers</h3>
+                <p>Don't miss out on our most popular treats!</p>
+              </div>
+              <div className={styles.recGrid}>
+                {recommendedFoods.map((food) => (
+                  <FoodItem key={food._id} food={food} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className={styles.cartLayout}>

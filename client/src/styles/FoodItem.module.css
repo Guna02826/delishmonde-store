@@ -4,16 +4,19 @@
   padding: var(--space-lg);
   text-align: center;
   box-shadow: var(--shadow-card);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition: all var(--transition-normal);
   display: flex;
   flex-direction: column;
-  align-items: center;
   height: 100%;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border-light);
 }
 
 .food:hover {
-  transform: translateY(-4px);
+  transform: translateY(-8px);
   box-shadow: var(--shadow-elevated);
+  border-color: var(--color-primary-light);
 }
 
 .food img {
@@ -21,50 +24,53 @@
   object-fit: cover;
   border-radius: var(--radius-md);
   margin-bottom: var(--space-md);
+  transition: transform var(--transition-normal);
+}
+
+.food:hover img {
+  transform: scale(1.02);
 }
 
 .homeImage {
-  max-width: 200px;
   aspect-ratio: 1 / 1;
 }
 
 .menuImage {
-  height: auto;
   aspect-ratio: 4 / 3;
 }
 
 .food h3 {
   font-size: var(--fs-h3);
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   margin-bottom: var(--space-sm);
-  line-height: 1.4;
-  height: 2.8em;
+  line-height: 1.3;
+  font-weight: 700;
+  min-height: 2.6em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
 }
 
 .desc {
   font-size: var(--fs-small);
   color: var(--color-text-secondary);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
   line-height: 1.5;
-  height: 3em;
+  min-height: 4.5em;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
+  flex-grow: 1;
 }
 
 .food b {
   font-size: var(--fs-h3);
-  color: var(--color-text-primary);
+  color: var(--color-cta);
   margin: var(--space-sm) 0;
+  display: block;
+  font-weight: 800;
 }
 
 .quantityContainer {
@@ -72,42 +78,41 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-md);
-  margin-top: var(--space-md);
+  margin-top: auto;
+  padding: var(--space-sm) 0;
 }
 
 .quantityButton {
-  background: var(--color-cta);
-  color: var(--color-text-on-dark);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
   border: none;
-  width: 36px;
-  height: 36px;
-  font-size: var(--fs-body);
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
   font-weight: 700;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
-  padding: 0;
-  transition: background var(--transition-normal), opacity var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .quantityButton:hover:not(:disabled) {
-  background: var(--color-cta-hover);
+  background: var(--color-primary);
+  color: white;
 }
 
 .quantityButton:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
-  opacity: 0.45;
 }
 
 .quantity {
-  font-size: var(--fs-h3);
-  font-weight: 700;
+  font-size: var(--fs-body);
+  font-weight: 800;
   color: var(--color-text-primary);
-  min-width: 32px;
-  text-align: center;
+  min-width: 24px;
 }
 
 .stockLimit {
@@ -119,35 +124,32 @@
 
 .addToCart {
   background: var(--color-cta);
-  color: var(--color-text-on-dark);
+  color: white;
   border: none;
-  padding: var(--space-sm) var(--space-lg);
+  padding: var(--space-md);
   min-height: var(--touch-min);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
   margin-top: var(--space-md);
   font-size: var(--fs-body);
   font-weight: 700;
   width: 100%;
-  transition: background var(--transition-normal), transform var(--transition-fast);
+  transition: all var(--transition-normal);
+  box-shadow: 0 4px 6px rgba(242, 100, 48, 0.2);
 }
 
 .addToCart:hover {
   background: var(--color-cta-hover);
-  transform: translateY(-2px);
+  transform: scale(1.02);
+  box-shadow: 0 6px 12px rgba(242, 100, 48, 0.3);
 }
 
 .addToCart:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 @media (max-width: 480px) {
   .food {
-    padding: var(--space-md);
-  }
-
-  .addToCart {
-    width: 100%;
     padding: var(--space-md);
   }
 }
