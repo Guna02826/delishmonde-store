@@ -13,7 +13,7 @@ function Homepage() {
   const [bestSellers, setBestSellers] = useState([]);
   const [startingDemo, setStartingDemo] = useState(false);
   const navigate = useNavigate();
-  const { refreshUser } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
 
   useEffect(() => {
     axios
@@ -66,14 +66,16 @@ function Homepage() {
         <button className={styles.heroButton} onClick={() => navigate("/menu")}>
           Order Now
         </button>
-        <button
-          className={`${styles.demoButton} ${styles.pulse}`}
-          onClick={startDemo}
-          disabled={startingDemo}
-          title="Instant access as a guest - No login required"
-        >
-          {startingDemo ? "Starting Demo..." : "Interactive Demo"}
-        </button>
+        {!loading && !user && (
+          <button
+            className={`${styles.demoButton} ${styles.pulse}`}
+            onClick={startDemo}
+            disabled={startingDemo}
+            title="Instant access as a guest - No login required"
+          >
+            {startingDemo ? "Starting Demo..." : "Interactive Demo"}
+          </button>
+        )}
       </div>
 
       <h2 className={styles.bestSellerTitle}>Best Sellers</h2>
