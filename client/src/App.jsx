@@ -12,11 +12,47 @@ import ProfilePage from "./pages/ProfilePage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import OrderSuccess from "./pages/OrderSuccess";
 
+import { Toaster } from "react-hot-toast";
 import "./App.css";
 
 function App() {
   return (
     <Router>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: "#ffffff",
+            color: "#1c2833",
+            fontFamily: '"Lato", sans-serif',
+            borderRadius: "12px",
+            padding: "16px 24px",
+            boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+            fontSize: "15px",
+            maxWidth: "450px",
+            borderLeft: "6px solid transparent",
+          },
+          success: {
+            style: {
+              borderLeft: "6px solid #27ae60",
+            },
+            iconTheme: {
+              primary: "#27ae60",
+              secondary: "#ffffff",
+            },
+          },
+          error: {
+            style: {
+              borderLeft: "6px solid #e74c3c",
+            },
+            iconTheme: {
+              primary: "#e74c3c",
+              secondary: "#ffffff",
+            },
+          },
+        }}
+      />
       <Layout>
         <Routes>
           <Route path="/" element={<HomePage />} />

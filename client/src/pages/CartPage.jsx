@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/CartPage.module.css";
 import axios from "axios";
@@ -9,6 +11,7 @@ import {
   removeCartItem,
   updateCartItem,
 } from "../api/cartApi";
+import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -36,8 +39,8 @@ const formatCartItems = (cart) =>
 
 function CartPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState([]);
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -55,9 +58,6 @@ function CartPage() {
 
   useEffect(() => {
     const loadCart = async () => {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser) setUser(storedUser);
-
       try {
         const cart = await getCart();
         setCartItems(formatCartItems(cart));
@@ -67,7 +67,8 @@ function CartPage() {
           return;
         }
 
-        alert(error.response?.data?.message || "Failed to load cart.");
+        toast.error(error.response?.data?.message || "Failed to load cart.");
+
       } finally {
         setLoading(false);
       }
@@ -82,7 +83,8 @@ function CartPage() {
       setCartItems(formatCartItems(cart));
       setAppliedCoupon(null);
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to remove item.");
+      toast.error(error.response?.data?.message || "Failed to remove item.");
+
     }
   };
 
@@ -94,7 +96,8 @@ function CartPage() {
       setCartItems(formatCartItems(cart));
       setAppliedCoupon(null);
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to update quantity.");
+      toast.error(error.response?.data?.message || "Failed to update quantity.");
+
     }
   };
 
@@ -105,13 +108,15 @@ function CartPage() {
       setAppliedCoupon(null);
       setCouponCode("");
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to clear cart.");
+      toast.error(error.response?.data?.message || "Failed to clear cart.");
+
     }
   };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
-      alert("Enter a coupon code first.");
+      toast.error("Enter a coupon code first.");
+
       return;
     }
 
@@ -120,19 +125,22 @@ function CartPage() {
       setAppliedCoupon(coupon);
     } catch (error) {
       setAppliedCoupon(null);
-      alert(error.response?.data?.message || "Failed to apply coupon.");
+      toast.error(error.response?.data?.message || "Failed to apply coupon.");
+
     }
   };
 
   const handleCheckout = async () => {
     if (!user) {
-      alert("You need to log in to proceed to checkout!");
+      toast.error("You need to log in to proceed to checkout!");
+
       return navigate("/login");
     }
 
     const isRazorpayLoaded = await loadRazorpayScript();
     if (!isRazorpayLoaded) {
-      alert("Unable to load Razorpay checkout. Please try again.");
+      toast.error("Unable to load Razorpay checkout. Please try again.");
+
       return;
     }
 
@@ -170,14 +178,16 @@ function CartPage() {
               { withCredentials: true }
             );
 
-            alert("Payment successful! Order placed.");
+            toast.success("Payment successful! Order placed.");
+
             setCartItems([]);
             setAppliedCoupon(null);
             setCouponCode("");
             navigate("/order-success");
           } catch (error) {
             console.error("Payment verification error", error);
-            alert(
+            toast.error(
+
               "Payment verification failed: " +
                 (error.response?.data?.message || error.message)
             );
@@ -185,7 +195,8 @@ function CartPage() {
         },
         modal: {
           ondismiss: () => {
-            alert("Payment cancelled. Your order was not completed.");
+            toast.error("Payment cancelled. Your order was not completed.");
+
           },
         },
         theme: {
@@ -196,7 +207,8 @@ function CartPage() {
       checkout.open();
     } catch (error) {
       console.error("Checkout error", error);
-      alert(
+      toast.error(
+
         "Error starting checkout: " +
           (error.response?.data?.message || error.message)
       );

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { addCartItem } from "../api/cartApi";
 import styles from "../styles/FoodItem.module.css";
@@ -15,7 +16,7 @@ function FoodItem({ food, variant = "menu", successMode = "inline" }) {
       await addCartItem(food._id, quantity);
 
       if (successMode === "alert") {
-        alert(`${quantity} x ${food.name} added to cart!`);
+        toast.success(`${quantity} x ${food.name} added to cart!`);
         return;
       }
 
@@ -23,12 +24,12 @@ function FoodItem({ food, variant = "menu", successMode = "inline" }) {
       setTimeout(() => setAdded(false), 1500);
     } catch (error) {
       if (error.response?.status === 401) {
-        alert("Please log in to add items to your cart.");
+        toast.error("Please log in to add items to your cart.");
         navigate("/login");
         return;
       }
 
-      alert(error.response?.data?.message || "Failed to add item to cart.");
+      toast.error(error.response?.data?.message || "Failed to add item to cart.");
     }
   };
 

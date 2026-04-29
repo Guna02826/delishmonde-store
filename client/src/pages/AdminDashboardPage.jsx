@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+
 import axios from "axios";
 import styles from "../styles/AdminDashboardPage.module.css";
 
@@ -58,7 +60,8 @@ const AdminDashboardPage = () => {
         setProducts(productsRes.data);
       } catch (err) {
         console.error("Admin data load failed", err);
-        alert("You are not authorized. Please login as admin.");
+        toast.error("You are not authorized. Please login as admin.");
+
       } finally {
         setLoading(false);
       }
@@ -96,10 +99,12 @@ const AdminDashboardPage = () => {
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
-      alert("Status update successfully");
+      toast.success("Status update successfully");
+
     } catch (err) {
       console.error("Failed to update order status", err);
-      alert("Status update failed");
+      toast.error("Status update failed");
+
     }
   };
 
@@ -151,7 +156,8 @@ const AdminDashboardPage = () => {
       setEditingCouponId(null);
     } catch (err) {
       console.error("Failed to save coupon", err);
-      alert(err.response?.data?.message || "Coupon save failed");
+      toast.error(err.response?.data?.message || "Coupon save failed");
+
     }
   };
 
@@ -185,7 +191,8 @@ const AdminDashboardPage = () => {
       );
     } catch (err) {
       console.error("Failed to update coupon status", err);
-      alert(err.response?.data?.message || "Coupon status update failed");
+      toast.error(err.response?.data?.message || "Coupon status update failed");
+
     }
   };
 
@@ -239,7 +246,8 @@ const AdminDashboardPage = () => {
       setEditingProductId(null);
     } catch (err) {
       console.error("Failed to save product", err);
-      alert(err.response?.data?.message || "Product save failed");
+      toast.error(err.response?.data?.message || "Product save failed");
+
     }
   };
 
@@ -276,7 +284,8 @@ const AdminDashboardPage = () => {
       setProducts((prev) => prev.filter((product) => product._id !== productId));
     } catch (err) {
       console.error("Failed to delete product", err);
-      alert(err.response?.data?.message || "Product delete failed");
+      toast.error(err.response?.data?.message || "Product delete failed");
+
     }
   };
 

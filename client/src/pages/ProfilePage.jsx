@@ -1,39 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import styles from "../styles/ProfilePage.module.css";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { useAuth } from "../context/AuthContext";
 
 function ProfilePage() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user, loading, logout } = useAuth();
 
   useEffect(() => {
-    try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser) setUser(storedUser);
-    } catch (err) {
-      console.error("Invalid user data in storage", err);
-      localStorage.removeItem("user");
+    if (!loading && !user) {
+      navigate("/login");
     }
-  }, []);
+  }, [loading, user, navigate]);
 
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Are you sure you want to log out?");
     if (!confirmLogout) return;
-
-    try {
-      await axios.delete(`${API_URL}/users/sessions`, {
-        withCredentials: true,
-      });
-      localStorage.removeItem("user");
-      localStorage.removeItem("isAdmin");
-      navigate("/login");
-    } catch (err) {
-      console.error("Logout failed", err);
-    }
+    await logout();
+    navigate("/login");
   };
+
+  if (loading) {
+    return (
+      <div className={styles["profile-container"]}>
+        <p className={styles["profile-info"]}>Loading profile...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

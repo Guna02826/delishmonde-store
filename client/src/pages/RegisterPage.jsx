@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { toast } from "react-hot-toast";
+
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/RegisterPage.module.css";
@@ -32,13 +34,21 @@ const Register = () => {
       return;
     }
 
+    const passwordValidationError = validatePassword(formData.password);
+    if (passwordValidationError) {
+      setError(passwordValidationError);
+      setLoading(false);
+      return;
+    }
+
     try {
       console.log("Sending data:", formData);
       const response = await axios.post(`${API_URL}/users/`, formData, {
         withCredentials: true,
       });
 
-      alert("Sign-up successful! Please log in.");
+      toast.success("Sign-up successful! Please log in.");
+
 
       navigate("/login");
     } catch (error) {
@@ -95,6 +105,26 @@ const Register = () => {
       </p>
     </div>
   );
+};
+
+const validatePassword = (password) => {
+  if (password.length < 8) {
+    return "Password must be at least 8 characters long.";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Password must include at least one uppercase letter.";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "Password must include at least one lowercase letter.";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Password must include at least one number.";
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return "Password must include at least one special character.";
+  }
+
+  return null;
 };
 
 export default Register;

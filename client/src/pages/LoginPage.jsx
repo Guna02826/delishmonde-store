@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/LoginPage.module.css";
+import { useAuth } from "../context/AuthContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
@@ -12,6 +14,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,16 +32,15 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/users/sessions`, formData, {
+      await axios.post(`${API_URL}/users/sessions`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "application/json" },
       });
 
-      const { password, ...safeUser } = response.data.user;
-      localStorage.setItem("user", JSON.stringify(safeUser)); 
+      const safeUser = await refreshUser();
 
-      alert("Login successful!");
-      navigate(safeUser.isAdmin ? "/admin" : "/");
+      toast.success("Login successful!");
+      navigate(safeUser?.isAdmin ? "/admin" : "/");
     } catch (error) {
       setError(error.response?.data?.message || "Login failed. Try again.");
     } finally {
@@ -51,13 +53,13 @@ const Login = () => {
     setError(null);
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `${API_URL}/users/demo-session`,
         {},
         { withCredentials: true }
       );
 
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      await refreshUser();
       navigate("/menu");
     } catch (error) {
       setError(error.response?.data?.message || "Failed to start demo session.");

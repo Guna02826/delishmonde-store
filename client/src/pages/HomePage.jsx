@@ -1,9 +1,11 @@
 import styles from "../styles/HomePage.module.css";
+import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import image from "../assets/images/Bakery-background.jpg";
 import FoodItem from "../components/FoodItem";
+import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,6 +13,7 @@ function Homepage() {
   const [bestSellers, setBestSellers] = useState([]);
   const [startingDemo, setStartingDemo] = useState(false);
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   useEffect(() => {
     axios
@@ -30,16 +33,15 @@ function Homepage() {
     setStartingDemo(true);
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `${API_URL}/users/demo-session`,
         {},
         { withCredentials: true }
       );
-
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      await refreshUser();
       navigate("/menu");
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to start demo session.");
+      toast.error(error.response?.data?.message || "Failed to start demo session.");
     } finally {
       setStartingDemo(false);
     }

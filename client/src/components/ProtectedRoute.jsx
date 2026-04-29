@@ -1,9 +1,13 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = user?.isAdmin;
+  const { user, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return <p>Loading session...</p>;
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

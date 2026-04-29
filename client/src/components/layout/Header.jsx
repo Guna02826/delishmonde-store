@@ -1,5 +1,4 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   faGauge,
@@ -14,37 +13,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "../../styles/Header.module.css";
 import delishMondeLogo from "../../assets/images/Delish Monde - Logo.png";
-
-const API_URL = import.meta.env.VITE_API_URL;
-
-const getStoredUser = () => {
-  try {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  } catch (error) {
-    console.error("Invalid user data in storage", error);
-    localStorage.removeItem("user");
-    return null;
-  }
-};
+import { useAuth } from "../../context/AuthContext";
 
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = getStoredUser();
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
-    try {
-      await axios.delete(`${API_URL}/users/sessions`, {
-        withCredentials: true,
-      });
-    } catch (err) {
-      console.error("Logout failed", err);
-    } finally {
-      localStorage.removeItem("user");
-      localStorage.removeItem("isAdmin");
-      navigate("/login");
-    }
+    await logout();
+    navigate("/login");
   };
 
   return (

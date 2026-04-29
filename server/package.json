@@ -2,7 +2,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test:integration": "vitest run tests/integration"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -16,5 +17,10 @@
     "nodemailer": "^8.0.7",
     "nodemon": "^3.1.9",
     "razorpay": "^2.9.6"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^10.1.4",
+    "supertest": "^7.1.1",
+    "vitest": "^3.2.4"
   }
 }
