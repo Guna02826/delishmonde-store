@@ -82,9 +82,17 @@ function CartPage() {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const response = await axios.get(`${API_URL}/products`);
-        const bestSellers = response.data.filter(f => f.category?.includes("Best Sellers")).slice(0, 4);
-        setRecommendedFoods(bestSellers.length > 0 ? bestSellers : response.data.slice(0, 4));
+        const response = await axios.get(`${API_URL}/products`, {
+          params: { category: "Best Sellers", limit: 4 }
+        });
+        if (response.data.length > 0) {
+          setRecommendedFoods(response.data);
+        } else {
+          const fallback = await axios.get(`${API_URL}/products`, {
+            params: { limit: 4 }
+          });
+          setRecommendedFoods(fallback.data);
+        }
       } catch (error) {
         console.error("Failed to load recommendations", error);
       }
@@ -214,6 +222,11 @@ function CartPage() {
         theme: {
           color: "#8b4513",
         },
+      });
+
+      checkout.on("payment.failed", function (response) {
+        toast.error("Payment failed. Clearing cart...");
+        clearCart();
       });
 
       checkout.open();

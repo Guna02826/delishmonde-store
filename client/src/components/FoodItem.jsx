@@ -17,7 +17,7 @@ function FoodItem({ food, variant = "menu", successMode = "inline" }) {
     try {
       await addCartItem(food._id, quantity);
 
-      toast.success(`${quantity} x ${food.name} added to cart!`);
+      toast.success(`${quantity} x ${food.name} added to cart!`, { duration: 1500 });
       refreshCartCount();
 
       setAdded(true);

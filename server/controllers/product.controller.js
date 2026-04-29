@@ -17,7 +17,7 @@ const formatImages = (images, image) => {
 
 export const getProducts = async (req, res) => {
   try {
-    const { search, category, minPrice, maxPrice } = req.query;
+    const { search, category, minPrice, maxPrice, limit } = req.query;
     const filter = {};
 
     if (search) {
@@ -40,7 +40,13 @@ export const getProducts = async (req, res) => {
       }
     }
 
-    const cakes = await Product.find(filter);
+    let query = Product.find(filter);
+    
+    if (limit) {
+      query = query.limit(Number(limit));
+    }
+
+    const cakes = await query;
     res.json(cakes);
   } catch (error) {
     res.status(500).json({ message: error.message });

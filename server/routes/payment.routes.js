@@ -305,11 +305,9 @@ const verifyRazorpayPayment = async (req, res) => {
     }).populate("products.productId", "name price");
 
     if (shouldSendInvoice) {
-      try {
-        await sendInvoiceEmail({ to: req.user.email, order });
-      } catch (emailError) {
+      sendInvoiceEmail({ to: req.user.email, order }).catch((emailError) => {
         console.error("Invoice email failed:", emailError.message);
-      }
+      });
     }
 
     res.json({
