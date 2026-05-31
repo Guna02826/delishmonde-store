@@ -7,3 +7,14 @@ npm-debug.log
 scope_analysis.md
 implementation_plan.md
 recruiter_gap_report.md
+
+# Additional common ignores
+dist/
+build/
+.vscode/
+.idea/
+.DS_Store
+*.log
+.env.*
+uploads/
+server/uploads/
