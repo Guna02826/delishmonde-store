@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { verifyAdmin } from "../middleware/admin.middleware.js";
+import { validate } from "../middleware/validate.middleware.js";
+import { createProductSchema, updateProductSchema } from "../utils/validationSchemas.js";
 import {
   getProducts,
   createProduct,
@@ -11,8 +13,8 @@ const router = Router();
 
 router.get("/", getProducts);
 router.use(verifyAdmin);
-router.post("/", createProduct);
-router.put("/:id", updateProduct);
+router.post("/", validate(createProductSchema), createProduct);
+router.put("/:id", validate(updateProductSchema), updateProduct);
 router.delete("/:id", deleteProduct);
 
 export default router;
