@@ -8,15 +8,16 @@ process.env.RAZORPAY_KEY_ID = "rzp_test_key";
 process.env.RAZORPAY_KEY_SECRET = "rzp_test_secret";
 process.env.NODE_ENV = "test";
 
-const razorpayCreateMock = vi.fn();
-const sendInvoiceEmailMock = vi.fn();
+const { sendInvoiceEmailMock } = vi.hoisted(() => ({
+  sendInvoiceEmailMock: vi.fn(() => Promise.resolve(true)),
+}));
 
 vi.mock("razorpay", () => {
   return {
     default: class Razorpay {
       constructor() {
         this.orders = {
-          create: razorpayCreateMock,
+          create: vi.fn().mockResolvedValue({ id: "order_rzp_123", amount: 20000, currency: "INR" }),
         };
       }
     },
@@ -71,11 +72,8 @@ const createCheckout = async ({ cookie, couponCode } = {}) => {
     items: [{ productId: product._id, quantity: 2 }],
   });
 
-  razorpayCreateMock.mockResolvedValue({
-    id: "order_rzp_123",
-    amount: 20000,
-    currency: "INR",
-  });
+  // mock handled by razorpayCreateMock in original code, but since it's hoisted, we'll just mock it globally
+  // the mockResolvedValue is already provided in the class above.
 
   const response = await request(app)
     .post("/api/orders/create-razorpay-order")
@@ -104,8 +102,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await clearTestDb();
-  razorpayCreateMock.mockReset();
-  sendInvoiceEmailMock.mockReset();
+  sendInvoiceEmailMock.mockClear();
 });
 
 describe("Checkout integration", () => {
@@ -129,6 +126,7 @@ describe("Checkout integration", () => {
         }),
       });
 
+    if (verifyResponse.status !== 200) console.error(verifyResponse.body);
     expect(verifyResponse.status).toBe(200);
 
     const payment = await Payment.findById(paymentIntentId);
@@ -200,6 +198,7 @@ describe("Checkout integration", () => {
         }),
       });
 
+    if (verifyResponse.status !== 409) console.error(verifyResponse.body);
     expect(verifyResponse.status).toBe(409);
 
     const payment = await Payment.findById(paymentIntentId);

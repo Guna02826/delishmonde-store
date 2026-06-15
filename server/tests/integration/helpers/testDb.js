@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
 
 let mongoServer;
 
 export const connectTestDb = async () => {
-  mongoServer = await MongoMemoryServer.create({
+  mongoServer = await MongoMemoryReplSet.create({
+    replSet: { count: 1 },
     binary: { version: "6.0.14" },
   });
   const uri = mongoServer.getUri();

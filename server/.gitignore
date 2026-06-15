@@ -1,0 +1,14 @@
+node_modules/
+.env
+
+# Testing Files
+tests/
+__tests__/
+*.test.js
+*.test.jsx
+*.spec.js
+*.spec.jsx
+coverage/
+vitest.config.js
+vitest.setup.js
+setupTests.js
